@@ -1,0 +1,3119 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Varaq</title><!-- replaced from STRINGS when the page starts -->
+  <meta name="theme-color" content="#12151b">
+
+  <!-- Web fonts are optional: if they fail to load (offline), the fallback stacks below are used. -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Lora:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+
+  <style>
+    /* =========================================================
+       THEMES
+       Every colour in the app comes from these variables, so a
+       new theme is just one more block of variables.
+       ========================================================= */
+    :root {
+      --font-serif: "Lora", Georgia, "Times New Roman", serif;
+      --font-ui: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      --radius-card: 14px;
+      --radius-control: 10px;
+      --radius-dialog: 20px;
+      --ease: cubic-bezier(0.2, 0.7, 0.3, 1);
+    }
+
+    /* Dark (default): a blue-black "night reading" page with a lamp-light accent */
+    :root,
+    :root[data-theme="dark"] {
+      color-scheme: dark;
+      --bg: #12151b;
+      --surface: #181c23;
+      --surface-2: #1f242d;
+      --text: #e9e4d8;
+      --text-muted: #a3a097;
+      --border: #2c323d;
+      --accent: #dfb37a;
+      --accent-ink: #1c1509;
+      --danger: #f0a0a0;
+      --focus: #ecc590;
+      --shadow: 0 1px 2px rgba(0, 0, 0, 0.25), 0 8px 24px rgba(0, 0, 0, 0.22);
+    }
+
+    /* Sepia: old paper with fountain-pen blue ink */
+    :root[data-theme="sepia"] {
+      color-scheme: light;
+      --bg: #ece0c8;
+      --surface: #f5ecd9;
+      --surface-2: #e6d8bc;
+      --text: #3a2f23;
+      --text-muted: #6a5a46;
+      --border: #d5c5a4;
+      --accent: #2f4f6f;
+      --accent-ink: #f8f1e2;
+      --danger: #a4322a;
+      --focus: #2f4f6f;
+      --shadow: 0 1px 2px rgba(80, 55, 20, 0.08), 0 8px 24px rgba(80, 55, 20, 0.1);
+    }
+
+    /* Light: cool white paper with a claret bookmark-ribbon accent */
+    :root[data-theme="light"] {
+      color-scheme: light;
+      --bg: #f3f4f6;
+      --surface: #ffffff;
+      --surface-2: #eceef1;
+      --text: #1f2328;
+      --text-muted: #5d646c;
+      --border: #dde1e6;
+      --accent: #8a2f3f;
+      --accent-ink: #ffffff;
+      --danger: #b3312b;
+      --focus: #8a2f3f;
+      --shadow: 0 1px 2px rgba(20, 30, 50, 0.06), 0 8px 24px rgba(20, 30, 50, 0.07);
+    }
+
+    /* =========================================================
+       BASE
+       ========================================================= */
+    *, *::before, *::after { box-sizing: border-box; }
+
+    html { -webkit-text-size-adjust: 100%; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: var(--font-ui);
+      font-size: 1rem;
+      line-height: 1.6;
+      color: var(--text);
+      background: var(--bg);
+      -webkit-font-smoothing: antialiased;
+      transition: background-color 0.3s var(--ease), color 0.3s var(--ease);
+    }
+
+    /* Stop the page behind an open dialog from scrolling */
+    body:has(dialog[open]) { overflow: hidden; }
+
+    h1, h2, p, blockquote, ul { margin: 0; }
+    ul { padding: 0; list-style: none; }
+    button, input, select, textarea { font: inherit; color: inherit; }
+    button { cursor: pointer; }
+
+    /* The hidden attribute must always win over display rules below */
+    [hidden] { display: none !important; }
+
+    :focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+
+    .sr-only {
+      position: absolute;
+      width: 1px; height: 1px;
+      margin: -1px; padding: 0;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    .container { width: min(100% - 2rem, 62rem); margin-inline: auto; }
+
+    /* Icons are inline SVGs sized in em, so they follow the text size around them */
+    .icon { display: inline-flex; flex: none; }
+    .icon svg { width: 1.25em; height: 1.25em; }
+
+    /* =========================================================
+       HEADER + THEME SWITCH
+       ========================================================= */
+    .site-header { padding: 1.25rem 0 0.5rem; }
+
+    .header-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+
+    .brand { display: flex; align-items: center; gap: 0.75rem; min-width: 0; }
+
+    .brand-mark {
+      display: grid;
+      place-items: center;
+      width: 2.5rem;
+      height: 2.5rem;
+      border-radius: 12px;
+      background: var(--accent);
+      color: var(--accent-ink);
+    }
+    .brand-mark svg { width: 1.3rem; height: 1.3rem; }
+
+    .brand-name {
+      font-family: var(--font-serif);
+      font-size: 1.75rem;
+      font-weight: 600;
+      line-height: 1.1;
+    }
+    .brand-tagline { font-size: 0.8125rem; color: var(--text-muted); }
+
+    .theme-switch {
+      display: flex;
+      gap: 0.5rem;
+      padding: 0.375rem;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      background: var(--surface);
+    }
+
+    .theme-btn {
+      width: 2rem;
+      height: 2rem;
+      padding: 0;
+      border: 0;
+      border-radius: 50%;
+      /* Each swatch is a circle split in two: page colour + accent colour */
+      background: linear-gradient(135deg, var(--sw-page) 50%, var(--sw-accent) 50%);
+      box-shadow: inset 0 0 0 1px rgba(128, 128, 128, 0.4);
+      transition: box-shadow 0.2s var(--ease);
+    }
+    .theme-btn[aria-pressed="true"] {
+      box-shadow: 0 0 0 2px var(--surface), 0 0 0 4px var(--accent);
+    }
+    .theme-btn[data-theme-option="dark"]  { --sw-page: #12151b; --sw-accent: #dfb37a; }
+    .theme-btn[data-theme-option="sepia"] { --sw-page: #ece0c8; --sw-accent: #2f4f6f; }
+    .theme-btn[data-theme-option="light"] { --sw-page: #ffffff; --sw-accent: #8a2f3f; }
+
+    /* =========================================================
+       QUOTE OF THE DAY
+       The one "memorable" element: a page with a ribbon bookmark.
+       ========================================================= */
+    .daily {
+      position: relative;
+      margin-top: 1rem;
+      padding: 1.5rem 1.5rem 1.5rem;
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      background: var(--surface);
+      box-shadow: var(--shadow);
+    }
+
+    /* The ribbon hangs from the top edge of the page */
+    .daily::after {
+      content: "";
+      position: absolute;
+      top: -1px;
+      right: 1.5rem;
+      width: 1.6rem;
+      height: 3rem;
+      background: var(--accent);
+      clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 78%, 0 100%);
+    }
+
+    .daily-label { font-size: 0.9375rem; font-weight: 600; color: var(--accent); padding-right: 3rem; }
+
+    .daily-text {
+      max-width: 42rem;
+      margin-top: 1rem;
+      font-family: var(--font-serif);
+      font-size: clamp(1.3rem, 1.05rem + 1.4vw, 1.85rem);
+      line-height: 1.5;
+      white-space: pre-line; /* keeps the line breaks the user typed */
+      text-wrap: pretty;
+    }
+
+    .daily-source { margin-top: 1rem; }
+    .daily .btn { margin-top: 1.25rem; }
+
+    .source-author { display: block; font-weight: 600; }
+    .source-book { display: block; color: var(--text-muted); font-size: 0.9375rem; }
+    .source-book cite { font-style: italic; }
+
+    /* =========================================================
+       SEARCH + FILTERS
+       ========================================================= */
+    .toolbar { display: grid; gap: 0.75rem; margin-top: 1.75rem; }
+
+    .control {
+      width: 100%;
+      min-height: 2.75rem;
+      padding: 0.6rem 0.85rem;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-control);
+      background: var(--surface);
+      color: var(--text);
+      transition: border-color 0.15s, background-color 0.3s;
+    }
+    .control::placeholder { color: var(--text-muted); opacity: 1; }
+    .control[aria-invalid="true"] { border-color: var(--danger); }
+
+    .search { position: relative; }
+    .search .control { padding-left: 2.6rem; }
+    .search-icon {
+      position: absolute;
+      top: 0; bottom: 0; left: 0.9rem;
+      align-items: center;
+      color: var(--text-muted);
+      pointer-events: none;
+    }
+
+    .filters {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.75rem;
+      align-items: end;
+    }
+
+    .field { display: grid; gap: 0.35rem; min-width: 0; }
+    .field > label { font-size: 0.8125rem; font-weight: 600; color: var(--text-muted); }
+
+    /* "Favorites only" is a real checkbox, styled as a toggle button */
+    .chip-toggle { position: relative; grid-column: 1 / -1; }
+    .chip-toggle .chip {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      min-height: 2.75rem;
+      padding: 0.6rem 1rem;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-control);
+      background: var(--surface);
+      cursor: pointer;
+      transition: background-color 0.15s, color 0.15s, border-color 0.15s;
+    }
+    .chip-toggle input:checked + .chip {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: var(--accent-ink);
+    }
+    .chip-toggle input:checked + .chip svg { fill: currentColor; }
+    .chip-toggle input:focus-visible + .chip { outline: 3px solid var(--focus); outline-offset: 2px; }
+
+    @media (min-width: 720px) {
+      .filters { grid-template-columns: repeat(3, minmax(0, 1fr)) auto; }
+      .chip-toggle { grid-column: auto; }
+    }
+
+    .results-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      min-height: 1.5rem;
+      margin: 1.25rem 0 0.75rem;
+      font-size: 0.875rem;
+      color: var(--text-muted);
+    }
+
+    .link-btn {
+      padding: 0.25rem 0.5rem;
+      border: 0;
+      border-radius: 6px;
+      background: none;
+      color: var(--accent);
+      font-weight: 600;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+
+    /* =========================================================
+       QUOTE CARDS
+       ========================================================= */
+    .quote-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(min(100%, 22rem), 1fr));
+      gap: 1rem;
+    }
+
+    .card {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      padding: 1.25rem 1.25rem 0.5rem;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-card);
+      background: var(--surface);
+      box-shadow: var(--shadow);
+    }
+
+    .card-text {
+      font-family: var(--font-serif);
+      font-size: 1.1875rem;
+      line-height: 1.65;
+      white-space: pre-line;
+      overflow-wrap: anywhere;
+      text-wrap: pretty;
+    }
+    /* A large opening quote mark, drawn with CSS so it never touches the saved text */
+    .card-text::before {
+      content: "\201C";
+      display: block;
+      height: 1.5rem;
+      font-size: 3rem;
+      line-height: 1;
+      color: var(--accent);
+    }
+
+    .card-note {
+      padding-left: 0.85rem;
+      border-left: 3px solid var(--accent);
+      font-size: 0.9375rem;
+      color: var(--text-muted);
+      white-space: pre-line;
+      overflow-wrap: anywhere;
+    }
+
+    .tags { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+    .tag {
+      padding: 0.25rem 0.7rem;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      background: var(--surface-2);
+      color: var(--text-muted);
+      font-size: 0.8125rem;
+      transition: color 0.15s, border-color 0.15s;
+    }
+    .tag:hover { color: var(--text); border-color: var(--accent); }
+    .tag[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+
+    .card-footer {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0 0.75rem;
+      margin-top: auto; /* pushes the footer to the bottom when neighbours are taller */
+      padding-top: 0.5rem;
+      border-top: 1px solid var(--border);
+    }
+    .card-date { font-size: 0.8125rem; color: var(--text-muted); }
+    .card-actions { display: flex; gap: 0.125rem; margin-left: auto; }
+
+    .icon-btn {
+      display: inline-grid;
+      place-items: center;
+      width: 2.5rem;
+      height: 2.5rem;
+      padding: 0;
+      border: 0;
+      border-radius: var(--radius-control);
+      background: transparent;
+      color: var(--text-muted);
+      transition: background-color 0.15s, color 0.15s, transform 0.15s;
+    }
+    .icon-btn svg { width: 1.2rem; height: 1.2rem; }
+    .icon-btn:hover { background: var(--surface-2); color: var(--text); }
+    .icon-btn:active { transform: scale(0.92); }
+    .icon-btn[aria-pressed="true"] { color: var(--accent); }
+    .icon-btn[aria-pressed="true"] svg { fill: currentColor; }
+    .icon-btn.danger:hover { color: var(--danger); }
+
+    /* Empty state and "nothing found" share this layout */
+    .empty {
+      grid-column: 1 / -1;
+      display: grid;
+      justify-items: center;
+      gap: 0.75rem;
+      padding: 3.5rem 1.5rem;
+      border: 1.5px dashed var(--border);
+      border-radius: var(--radius-card);
+      text-align: center;
+    }
+    .empty .icon { color: var(--accent); }
+    .empty .icon svg { width: 3.5rem; height: 3.5rem; stroke-width: 1.5; }
+    .empty h2 { font-family: var(--font-serif); font-size: 1.5rem; }
+    .empty p { max-width: 30rem; color: var(--text-muted); }
+    .empty .btn { margin-top: 0.5rem; }
+
+    /* =========================================================
+       BUTTONS
+       ========================================================= */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      min-height: 2.75rem;
+      padding: 0.6rem 1.15rem;
+      border: 1px solid transparent;
+      border-radius: var(--radius-control);
+      font-weight: 600;
+      transition: background-color 0.15s, filter 0.15s, transform 0.15s;
+    }
+    .btn:active { transform: scale(0.98); }
+    .btn-primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+    .btn-primary:hover { filter: brightness(1.08); }
+    .btn-ghost { background: transparent; border-color: var(--border); color: var(--text); }
+    .btn-ghost:hover { background: var(--surface-2); }
+
+    /* The "new quote" button floats: icon-only on phones, icon + label on wider screens */
+    .fab {
+      position: fixed;
+      right: max(1rem, env(safe-area-inset-right));
+      bottom: max(1rem, env(safe-area-inset-bottom));
+      z-index: 20;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      min-width: 3.5rem;
+      height: 3.5rem;
+      padding: 0 1rem;
+      border: 0;
+      border-radius: 999px;
+      background: var(--accent);
+      color: var(--accent-ink);
+      font-weight: 600;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+      transition: filter 0.15s, transform 0.15s;
+    }
+    .fab:hover { filter: brightness(1.08); }
+    .fab:active { transform: scale(0.96); }
+    .fab .icon svg { width: 1.5rem; height: 1.5rem; }
+    .fab-label { display: none; }
+
+    @media (min-width: 640px) {
+      .fab { right: 1.5rem; bottom: 1.5rem; padding: 0 1.4rem 0 1.15rem; }
+      .fab-label { display: inline; }
+    }
+
+    /* =========================================================
+       DIALOG (add / edit)
+       ========================================================= */
+    dialog {
+      width: min(100% - 1.5rem, 34rem);
+      max-height: calc(100vh - 1.5rem);
+      max-height: calc(100dvh - 1.5rem);
+      padding: 0;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-dialog);
+      background: var(--surface);
+      color: var(--text);
+      box-shadow: 0 24px 64px rgba(0, 0, 0, 0.45);
+      overflow: auto;
+    }
+    dialog::backdrop { background: rgba(8, 10, 14, 0.6); backdrop-filter: blur(3px); }
+    dialog[open] { animation: dialog-in 0.22s var(--ease); }
+    @keyframes dialog-in {
+      from { opacity: 0; transform: translateY(12px) scale(0.98); }
+      to   { opacity: 1; transform: none; }
+    }
+
+    .dialog-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      padding: 1.1rem 1.25rem 0.25rem;
+    }
+    .dialog-head h2 { font-family: var(--font-serif); font-size: 1.4rem; font-weight: 600; }
+    .dialog-body { display: grid; gap: 1rem; padding: 0.75rem 1.25rem 1rem; }
+    .dialog-foot { display: flex; justify-content: flex-end; gap: 0.75rem; padding: 0.5rem 1.25rem 1.25rem; }
+
+    .field-row { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); gap: 0.75rem; }
+    .dialog-body .field > label { color: var(--text); }
+    .req { color: var(--accent); }
+    .field-error { font-size: 0.875rem; color: var(--danger); }
+
+    textarea.control { resize: vertical; line-height: 1.5; }
+    #field-text { min-height: 8rem; font-family: var(--font-serif); font-size: 1.0625rem; line-height: 1.6; }
+    #field-note { min-height: 4.5rem; }
+
+    /* =========================================================
+       TOASTS (messages + "Undo")
+       ========================================================= */
+    .toasts {
+      position: fixed;
+      left: 1rem;
+      right: 1rem;
+      bottom: calc(5.25rem + env(safe-area-inset-bottom)); /* sits above the round button on phones */
+      z-index: 40;
+      display: grid;
+      gap: 0.5rem;
+      justify-items: center;
+      pointer-events: none;
+    }
+    .toast {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      max-width: 100%;
+      padding: 0.7rem 1rem;
+      border-radius: 12px;
+      background: var(--text);
+      color: var(--bg);
+      font-size: 0.9375rem;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+      pointer-events: auto;
+      animation: toast-in 0.25s var(--ease);
+    }
+    @keyframes toast-in {
+      from { opacity: 0; transform: translateY(8px); }
+      to   { opacity: 1; transform: none; }
+    }
+    .toast-action {
+      margin: -0.4rem -0.5rem -0.4rem 0;
+      padding: 0.4rem 0.5rem;
+      border: 0;
+      border-radius: 8px;
+      background: none;
+      color: inherit;
+      font-weight: 700;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+    @media (min-width: 640px) {
+      .toasts { left: 1.5rem; right: auto; bottom: 1.5rem; max-width: 26rem; justify-items: start; }
+    }
+
+    /* =========================================================
+       FOOTER (backup + shortcuts)
+       ========================================================= */
+    .site-footer {
+      display: grid;
+      gap: 0.75rem;
+      margin-top: 3rem;
+      padding-block: 1.75rem 6rem; /* extra room so the round button never covers the text */
+      border-top: 1px solid var(--border);
+      color: var(--text-muted);
+      font-size: 0.9375rem;
+    }
+    .site-footer h2 { font-family: var(--font-serif); font-size: 1.0625rem; color: var(--text); }
+    .site-footer p { max-width: 40rem; }
+    .footer-actions { display: flex; flex-wrap: wrap; gap: 0.75rem; }
+    .shortcuts { display: flex; flex-wrap: wrap; gap: 0.5rem 1.25rem; font-size: 0.8125rem; }
+    kbd {
+      margin-right: 0.4rem;
+      padding: 0.1rem 0.45rem;
+      border: 1px solid var(--border);
+      border-bottom-width: 2px;
+      border-radius: 6px;
+      background: var(--surface);
+      color: var(--text);
+      font-family: var(--font-ui);
+      font-size: 0.75rem;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+
+    @media (max-width: 479px) {
+      .brand-tagline { display: none; }
+    }
+
+    /* =========================================================
+       MAIN NAVIGATION (Quotes / Reader)
+       ========================================================= */
+    .main-nav-wrap { margin-top: 0.75rem; }
+
+    .main-nav {
+      display: inline-flex;
+      gap: 0.25rem;
+      padding: 0.25rem;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      background: var(--surface);
+    }
+
+    .nav-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      min-height: 2.5rem;
+      padding: 0.4rem 1.1rem;
+      border: 0;
+      border-radius: 999px;
+      background: transparent;
+      color: var(--text-muted);
+      font-weight: 600;
+      transition: background-color 0.15s, color 0.15s;
+    }
+    .nav-btn:hover { color: var(--text); }
+    .nav-btn[aria-current="page"] { background: var(--accent); color: var(--accent-ink); }
+
+    /* =========================================================
+       READER: HOME (no book open)
+       ========================================================= */
+    .reader { margin-top: 1.25rem; }
+    .reader-home { display: grid; gap: 2rem; }
+
+    .drop-zone {
+      display: grid;
+      justify-items: center;
+      gap: 0.75rem;
+      padding: 3rem 1.5rem;
+      border: 1.5px dashed var(--border);
+      border-radius: var(--radius-card);
+      text-align: center;
+      transition: border-color 0.15s, background-color 0.15s;
+    }
+    .drop-zone.is-dragging { border-color: var(--accent); background: var(--surface); }
+    .drop-zone > .icon { color: var(--accent); }
+    .drop-zone > .icon svg { width: 3.5rem; height: 3.5rem; stroke-width: 1.5; }
+    .drop-zone h2 { font-family: var(--font-serif); font-size: 1.5rem; }
+    .drop-zone p { max-width: 30rem; color: var(--text-muted); }
+    .drop-hint { font-size: 0.875rem; }
+    .reader-status { min-height: 1.5rem; font-size: 0.9375rem; }
+
+    .recent h2 { font-family: var(--font-serif); font-size: 1.25rem; }
+    .recent-hint { margin: 0.25rem 0 1rem; max-width: 40rem; font-size: 0.9375rem; color: var(--text-muted); }
+    .recent-list { display: grid; gap: 0.75rem; }
+
+    .recent-item {
+      display: flex;
+      align-items: stretch;
+      gap: 0.25rem;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-card);
+      background: var(--surface);
+      box-shadow: var(--shadow);
+    }
+    .recent-open {
+      flex: 1;
+      display: grid;
+      gap: 0.1rem;
+      min-width: 0;
+      padding: 0.9rem 1rem;
+      border: 0;
+      border-radius: var(--radius-card);
+      background: none;
+      text-align: left;
+    }
+    .recent-open:hover { background: var(--surface-2); }
+    .recent-title { font-family: var(--font-serif); font-size: 1.125rem; overflow-wrap: anywhere; }
+    .recent-author, .recent-page { font-size: 0.875rem; color: var(--text-muted); }
+    .recent-item .icon-btn { align-self: center; margin-right: 0.5rem; }
+
+    /* =========================================================
+       READER: BOOK (toolbar + page)
+       ========================================================= */
+    .book-bar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.25rem 1rem;
+      padding: 0.5rem 0.75rem;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-card);
+      background: var(--surface);
+      box-shadow: var(--shadow);
+    }
+    .book-head { flex: 1 1 14rem; display: flex; align-items: center; gap: 0.5rem; min-width: 0; }
+    .book-title {
+      font-family: var(--font-serif);
+      font-size: 1.125rem;
+      font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .book-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 0.25rem 1rem; }
+    .ctrl-group { display: flex; align-items: center; gap: 0.25rem; }
+    .ctrl-group > .icon { color: var(--text-muted); }
+
+    .page-input { width: 4.25rem; min-height: 2.5rem; padding: 0.35rem 0.4rem; text-align: center; -moz-appearance: textfield; }
+    .page-input::-webkit-outer-spin-button, .page-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+    .page-total { min-width: 3rem; font-size: 0.9375rem; color: var(--text-muted); }
+
+    .text-btn {
+      min-width: 3.5rem;
+      min-height: 2.5rem;
+      padding: 0.3rem 0.6rem;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-control);
+      background: transparent;
+      font-size: 0.875rem;
+      font-weight: 600;
+      transition: background-color 0.15s;
+    }
+    .text-btn:hover { background: var(--surface-2); }
+
+    .range { width: 6.5rem; accent-color: var(--accent); }
+
+    /* On wider screens the toolbar stays visible while you scroll down a tall page */
+    @media (min-width: 720px) {
+      .book-bar { position: sticky; top: 0.5rem; z-index: 15; }
+    }
+
+    /* The page colours: the PDF is drawn on a white canvas, and a CSS filter recolours it.
+       "Dark" inverts it (keeping hues roughly right), "sepia" warms it up.
+       brightness(1) is the "do nothing" filter: a plain "none" can't be combined with others. */
+    :root { --page-filter: brightness(1); }
+    :root[data-theme="dark"] { --page-filter: invert(0.9) hue-rotate(180deg); }
+    :root[data-theme="sepia"] { --page-filter: sepia(0.45); }
+
+    .page-scroller { margin-top: 1rem; padding: 4px 4px 2rem; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    .page-stage { width: max-content; min-width: 100%; }
+    .page {
+      position: relative;
+      margin-inline: auto;
+      border-radius: 4px;
+      background: #fff;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+    .page canvas {
+      display: block;
+      filter: var(--page-filter) brightness(var(--page-brightness, 1));
+      transition: filter 0.3s var(--ease);
+    }
+
+    /* The invisible text on top of the canvas: it makes text selectable and searchable */
+    .textLayer {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+      line-height: 1;
+      text-align: initial;
+      transform-origin: 0 0;
+      -webkit-text-size-adjust: none;
+      text-size-adjust: none;
+      -webkit-user-select: text;
+      user-select: text;
+    }
+    .textLayer span, .textLayer br {
+      position: absolute;
+      color: transparent;
+      white-space: pre;
+      cursor: text;
+      transform-origin: 0% 0%;
+    }
+    .textLayer span.markedContent { top: 0; height: 0; } /* wrapper spans must not shift the words inside them */
+    .textLayer ::selection { background: rgba(79, 140, 255, 0.4); }
+    .textLayer br::selection { background: transparent; } /* avoids odd highlighted bars in Chrome */
+    /* Keeps a drag-selection from jumping to far-away text when the mouse leaves the lines */
+    .textLayer .endOfContent {
+      display: block;
+      position: absolute;
+      inset: 100% 0 0;
+      z-index: -1;
+      cursor: default;
+      -webkit-user-select: none;
+      user-select: none;
+    }
+    .textLayer.selecting .endOfContent { top: 0; }
+
+    .page-nav-bottom { display: flex; justify-content: space-between; gap: 1rem; margin-top: 0.5rem; }
+
+    .selection-bar {
+      position: fixed;
+      left: 50%;
+      bottom: max(1rem, env(safe-area-inset-bottom));
+      z-index: 30;
+      transform: translateX(-50%);
+      animation: toast-in 0.2s var(--ease);
+    }
+    .selection-bar .btn { box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35); }
+
+  </style>
+</head>
+
+<body>
+  <!--
+    The HTML below contains no visible text of its own.
+    Elements marked data-i18n / data-i18n-placeholder / data-i18n-label get their
+    text from the STRINGS object in the script, and data-icon gets an icon from ICONS.
+  -->
+
+  <header class="site-header">
+    <div class="container header-inner">
+      <div class="brand">
+        <span class="brand-mark" data-icon="bookmark"></span>
+        <div>
+          <h1 class="brand-name" data-i18n="appName"></h1>
+          <p class="brand-tagline" data-i18n="tagline"></p>
+        </div>
+      </div>
+
+      <div class="theme-switch" role="group" data-i18n-label="themeLabel">
+        <button type="button" class="theme-btn" data-theme-option="dark"  data-i18n-label="themeDark"  aria-pressed="false"></button>
+        <button type="button" class="theme-btn" data-theme-option="sepia" data-i18n-label="themeSepia" aria-pressed="false"></button>
+        <button type="button" class="theme-btn" data-theme-option="light" data-i18n-label="themeLight" aria-pressed="false"></button>
+      </div>
+    </div>
+
+    <nav class="container main-nav-wrap" data-i18n-label="navLabel">
+      <div class="main-nav">
+        <button type="button" class="nav-btn" data-view="quotes" aria-current="page">
+          <span data-icon="bookmark"></span><span data-i18n="navQuotes"></span>
+        </button>
+        <button type="button" class="nav-btn" data-view="reader">
+          <span data-icon="book"></span><span data-i18n="navReader"></span>
+        </button>
+      </div>
+    </nav>
+  </header>
+
+  <main class="container" id="view-quotes">
+    <!-- Quote of the day (hidden until there is at least one quote) -->
+    <section class="daily" id="daily" aria-labelledby="daily-title" hidden>
+      <h2 class="daily-label" id="daily-title" data-i18n="quoteOfDay"></h2>
+      <blockquote class="daily-text" id="daily-text"></blockquote>
+      <div class="daily-source" id="daily-source"></div>
+      <button type="button" class="btn btn-ghost" id="another-btn">
+        <span data-icon="refresh"></span>
+        <span data-i18n="anotherOne"></span>
+      </button>
+    </section>
+
+    <!-- Search + filters (hidden while there are no quotes) -->
+    <section class="toolbar" id="toolbar">
+      <div class="search">
+        <label class="sr-only" for="search-input" data-i18n="searchLabel"></label>
+        <span class="search-icon icon" data-icon="search"></span>
+        <input class="control" type="search" id="search-input" autocomplete="off" data-i18n-placeholder="searchPlaceholder">
+      </div>
+
+      <div class="filters">
+        <div class="field">
+          <label for="filter-book" data-i18n="filterBook"></label>
+          <select class="control" id="filter-book"></select>
+        </div>
+        <div class="field">
+          <label for="filter-tag" data-i18n="filterTag"></label>
+          <select class="control" id="filter-tag"></select>
+        </div>
+        <div class="field">
+          <label for="sort-select" data-i18n="sortLabel"></label>
+          <select class="control" id="sort-select">
+            <option value="newest" data-i18n="sortNewest"></option>
+            <option value="oldest" data-i18n="sortOldest"></option>
+          </select>
+        </div>
+        <label class="chip-toggle">
+          <input class="sr-only" type="checkbox" id="filter-favorites">
+          <span class="chip">
+            <span data-icon="heart"></span>
+            <span data-i18n="onlyFavorites"></span>
+          </span>
+        </label>
+      </div>
+    </section>
+
+    <div class="results-meta" id="results-meta">
+      <p id="results-count" aria-live="polite"></p>
+      <button type="button" class="link-btn" id="clear-filters-btn" data-i18n="clearFilters" hidden></button>
+    </div>
+
+    <!-- Cards, the empty state and the "nothing found" state are all drawn in here -->
+    <section class="quote-list" id="quote-list"></section>
+  </main>
+
+  <!-- Reader: open a PDF, read it, turn sentences into quotes -->
+  <section class="container reader" id="view-reader" hidden>
+
+    <!-- Shown while no book is open -->
+    <div class="reader-home" id="reader-home">
+      <div class="drop-zone" id="drop-zone">
+        <span class="icon" data-icon="book"></span>
+        <h2 data-i18n="readerHomeTitle"></h2>
+        <p data-i18n="readerIntro"></p>
+        <button type="button" class="btn btn-primary" id="open-book-btn">
+          <span data-icon="upload"></span><span data-i18n="readerOpen"></span>
+        </button>
+        <p class="drop-hint" data-i18n="readerDrop"></p>
+        <p class="reader-status" id="reader-status" role="status"></p>
+        <input type="file" id="book-input" accept=".pdf,application/pdf" hidden>
+      </div>
+
+      <section class="recent" id="recent" aria-labelledby="recent-title" hidden>
+        <h2 id="recent-title" data-i18n="readerRecent"></h2>
+        <p class="recent-hint" data-i18n="readerRecentHint"></p>
+        <ul class="recent-list" id="recent-list"></ul>
+      </section>
+    </div>
+
+    <!-- Shown while a book is open -->
+    <div class="book" id="book" hidden>
+      <div class="book-bar" id="book-bar">
+        <div class="book-head">
+          <button type="button" class="icon-btn" id="close-book-btn" data-i18n-label="readerClose">
+            <span data-icon="back"></span>
+          </button>
+          <h2 class="book-title" id="book-title"></h2>
+        </div>
+
+        <div class="book-controls">
+          <div class="ctrl-group">
+            <button type="button" class="icon-btn" data-page-step="-1" data-i18n-label="readerPrev">
+              <span data-icon="chevronLeft"></span>
+            </button>
+            <label class="sr-only" for="page-input" data-i18n="readerPageInput"></label>
+            <input class="control page-input" type="number" id="page-input" min="1" inputmode="numeric">
+            <span class="page-total" id="page-total"></span>
+            <button type="button" class="icon-btn" data-page-step="1" data-i18n-label="readerNext">
+              <span data-icon="chevronRight"></span>
+            </button>
+          </div>
+
+          <div class="ctrl-group">
+            <button type="button" class="icon-btn" id="zoom-out-btn" data-i18n-label="readerZoomOut">
+              <span data-icon="minus"></span>
+            </button>
+            <button type="button" class="text-btn" id="zoom-reset-btn" data-i18n-label="readerZoomReset"></button>
+            <button type="button" class="icon-btn" id="zoom-in-btn" data-i18n-label="readerZoomIn">
+              <span data-icon="plus"></span>
+            </button>
+          </div>
+
+          <div class="ctrl-group">
+            <span data-icon="sun"></span>
+            <label class="sr-only" for="brightness-input" data-i18n="readerBrightness"></label>
+            <input class="range" type="range" id="brightness-input" min="50" max="100" step="5">
+          </div>
+        </div>
+      </div>
+
+      <div class="page-scroller" id="page-scroller">
+        <div class="page-stage" id="page-stage"></div>
+      </div>
+
+      <div class="page-nav-bottom">
+        <button type="button" class="btn btn-ghost" data-page-step="-1">
+          <span data-icon="chevronLeft"></span><span data-i18n="readerPrevShort"></span>
+        </button>
+        <button type="button" class="btn btn-ghost" data-page-step="1">
+          <span data-i18n="readerNextShort"></span><span data-icon="chevronRight"></span>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <footer class="site-footer container">
+    <h2 data-i18n="backupTitle"></h2>
+    <p data-i18n="backupText"></p>
+    <div class="footer-actions">
+      <button type="button" class="btn btn-ghost" id="export-btn">
+        <span data-icon="download"></span><span data-i18n="export"></span>
+      </button>
+      <button type="button" class="btn btn-ghost" id="import-btn">
+        <span data-icon="upload"></span><span data-i18n="import"></span>
+      </button>
+      <input type="file" id="import-input" accept=".json,application/json" hidden>
+    </div>
+    <p class="shortcuts" id="shortcuts"></p>
+  </footer>
+
+  <button type="button" class="fab" id="add-btn" data-i18n-label="addQuote">
+    <span data-icon="plus"></span>
+    <span class="fab-label" data-i18n="addQuote"></span>
+  </button>
+
+  <!-- Appears while text is selected on a book page -->
+  <div class="selection-bar" id="selection-bar" hidden>
+    <button type="button" class="btn btn-primary" id="save-selection-btn">
+      <span data-icon="bookmark"></span><span data-i18n="saveAsQuote"></span>
+    </button>
+  </div>
+
+  <!-- Add / edit dialog. The native <dialog> gives us Esc-to-close and focus handling for free. -->
+  <dialog id="quote-dialog" aria-labelledby="dialog-title">
+    <form id="quote-form" novalidate>
+      <div class="dialog-head">
+        <h2 id="dialog-title"></h2>
+        <button type="button" class="icon-btn" id="dialog-close" data-i18n-label="close">
+          <span data-icon="close"></span>
+        </button>
+      </div>
+
+      <div class="dialog-body">
+        <div class="field">
+          <label for="field-text"><span data-i18n="fieldText"></span> <span class="req" aria-hidden="true">*</span></label>
+          <textarea class="control" id="field-text" rows="5" maxlength="2000" required aria-describedby="error-text" data-i18n-placeholder="textPlaceholder"></textarea>
+          <p class="field-error" id="error-text" role="alert" hidden></p>
+        </div>
+
+        <div class="field">
+          <label for="field-book"><span data-i18n="fieldBook"></span> <span class="req" aria-hidden="true">*</span></label>
+          <input class="control" type="text" id="field-book" maxlength="200" list="book-options" autocomplete="off" required aria-describedby="error-book">
+          <datalist id="book-options"></datalist>
+          <p class="field-error" id="error-book" role="alert" hidden></p>
+        </div>
+
+        <div class="field-row">
+          <div class="field">
+            <label for="field-author" data-i18n="fieldAuthor"></label>
+            <input class="control" type="text" id="field-author" maxlength="120" autocomplete="off">
+          </div>
+          <div class="field">
+            <label for="field-page" data-i18n="fieldPage"></label>
+            <input class="control" type="text" id="field-page" maxlength="30" autocomplete="off">
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="field-note" data-i18n="fieldNote"></label>
+          <textarea class="control" id="field-note" rows="2" maxlength="1000"></textarea>
+        </div>
+
+        <div class="field">
+          <label for="field-tags" data-i18n="fieldTags"></label>
+          <input class="control" type="text" id="field-tags" maxlength="200" autocomplete="off" data-i18n-placeholder="tagsPlaceholder">
+        </div>
+      </div>
+
+      <div class="dialog-foot">
+        <button type="button" class="btn btn-ghost" id="dialog-cancel" data-i18n="cancel"></button>
+        <button type="submit" class="btn btn-primary" data-i18n="save"></button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- Small messages appear here (role=status makes screen readers announce them) -->
+  <div class="toasts" id="toasts" role="status" aria-live="polite"></div>
+
+  <script>
+    "use strict";
+
+    /* =========================================================
+       HOW THIS FILE IS ORGANISED
+         1. STRINGS      all visible text (English)
+         2. CONFIG       storage keys, constants, icons
+         3. HELPERS      small tools used everywhere
+         4. STORAGE      the only code that touches localStorage
+         5. STATE        the app's data in memory
+         6. QUOTE LOGIC  clean-up, search, filter, merge (no DOM here)
+         6b. BOOK LOGIC  the same for the list of books you have read
+         7. RENDER       functions that draw the quotes on the page
+         8. ACTIONS      change state, save, then re-render
+         READER          the PDF reader: its own render + action functions
+         9. EVENTS       connect buttons and keys to actions
+        10. START        run everything
+
+       EXTENDING THE READER (bookmarks, highlights, notes, search)
+         - texts          -> add to STRINGS
+         - saved data     -> add a field to the book record (see sanitizeBook)
+         - drawing        -> do it in renderPage(), after the text layer is ready
+         - buttons        -> add a listener in bindReaderEvents()
+       ========================================================= */
+
+
+    /* =========================================================
+       1. STRINGS  (change any text of the app here)
+       ========================================================= */
+    const STRINGS = {
+      // App
+      appName: "Varaq",
+      tagline: "Read books, keep the lines you love",
+
+      // Main sections
+      navLabel: "Sections",
+      navQuotes: "Quotes",
+      navReader: "Reader",
+
+      // Themes
+      themeLabel: "Theme",
+      themeDark: "Dark theme",
+      themeSepia: "Sepia theme",
+      themeLight: "Light theme",
+
+      // Quote of the day
+      quoteOfDay: "Quote of the day",
+      anotherOne: "Another one",
+
+      // Search, filters, sorting
+      searchLabel: "Search quotes",
+      searchPlaceholder: "Search by quote, book or author",
+      filterBook: "Book",
+      allBooks: "All books",
+      filterTag: "Tag",
+      allTags: "All tags",
+      sortLabel: "Sort",
+      sortNewest: "Newest first",
+      sortOldest: "Oldest first",
+      onlyFavorites: "Favorites only",
+      clearFilters: "Clear filters",
+      quotesCount: (n) => (n === 1 ? "1 quote" : `${n} quotes`),
+      quotesCountFiltered: (shown, total) => `${shown} of ${total} quotes`,
+
+      // Add / edit dialog
+      addQuote: "New quote",
+      editQuote: "Edit quote",
+      fieldText: "Quote",
+      textPlaceholder: "Write the line you want to keep",
+      fieldBook: "Book title",
+      fieldAuthor: "Author",
+      fieldPage: "Page",
+      fieldNote: "Personal note",
+      fieldTags: "Tags (separate with commas)",
+      tagsPlaceholder: "e.g. patience, life, work",
+      errorText: "Please enter the quote.",
+      errorBook: "Please enter the book title.",
+      save: "Save",
+      cancel: "Cancel",
+      close: "Close",
+
+      // Card
+      cardFavorite: "Favorite",
+      cardCopy: "Copy",
+      cardImage: "Download as image",
+      cardEdit: "Edit",
+      cardDelete: "Delete",
+      tagFilterHint: (tag) => `Filter by "${tag}"`,
+      pageLabel: (page) => `page ${page}`,
+      months: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+      formatDate: (day, month, year) => `${month} ${day}, ${year}`,
+
+      // Messages (toasts)
+      savedToast: "Quote saved",
+      updatedToast: "Changes saved",
+      deletedToast: "Quote deleted",
+      restoredToast: "Quote restored",
+      undo: "Undo",
+      copiedToast: "Quote copied",
+      copyFailed: "Couldn't copy the quote",
+      imageDone: "Image downloaded",
+      imageFailed: "Couldn't create the image",
+      exportDone: (n) => `Backup saved (${n} ${n === 1 ? "quote" : "quotes"})`,
+      exportEmpty: "Nothing to back up yet",
+      importDone: (added, skipped) => {
+        const added_ = `${added} new ${added === 1 ? "quote" : "quotes"} added`;
+        return skipped > 0 ? `${added_}, ${skipped} already existed` : added_;
+      },
+      importNoQuotes: "No quotes found in this file",
+      importFailed: "This file is invalid or can't be read",
+      storageError: "Couldn't save: browser storage is unavailable or full. Download a backup file!",
+      storageCorrupted: "Saved data couldn't be read. A copy of it was kept separately.",
+
+      // Empty states
+      emptyTitle: "Your notebook is empty",
+      emptyText: "When a line in a book stays with you, write it down here. It's lovely to come back to later.",
+      emptyAction: "Add your first quote",
+      noResultsTitle: "Nothing found",
+      noResultsText: "Try changing the search or the filters.",
+
+      // Reader: home
+      readerHomeTitle: "Read a book",
+      readerIntro: "Open a PDF from your computer. Your page is remembered, and any sentence can become a saved quote.",
+      readerOpen: "Open a PDF",
+      readerDrop: "or drop a PDF file here",
+      readerRecent: "Recent books",
+      readerRecentHint: "Choose the file again to continue where you stopped. The book itself isn't stored in the browser.",
+      readerStopped: (page, pages) => (pages ? `Page ${page} of ${pages}` : `Page ${page}`),
+      readerForget: "Remove from the list",
+      readerForgot: "Removed from the list",
+      untitledBook: "Untitled book",
+      readerLoading: "Opening the book\u2026",
+
+      // Reader: book
+      readerClose: "Close book",
+      readerPrev: "Previous page",
+      readerNext: "Next page",
+      readerPrevShort: "Previous",
+      readerNextShort: "Next",
+      readerPageInput: "Page number",
+      readerOf: (n) => `of ${n}`,
+      readerZoomIn: "Zoom in",
+      readerZoomOut: "Zoom out",
+      readerZoomReset: "Reset zoom",
+      readerBrightness: "Page brightness",
+      readerContinuing: (page) => `Continuing from page ${page}`,
+      saveAsQuote: "Save as quote",
+
+      // Reader: errors
+      readerErrorNotPdf: "Please choose a PDF file.",
+      readerErrorPassword: "This PDF is password-protected, so it can't be opened here.",
+      readerErrorOpen: "This file couldn't be opened. It may be damaged.",
+      readerErrorEngine: "The PDF engine couldn't be loaded. Check your internet connection and try again.",
+      readerErrorPage: "This page couldn't be displayed.",
+
+      // Footer
+      backupTitle: "Backup",
+      backupText: "Your quotes and reading progress are stored only in this browser. If the browser data is cleared, they can be lost, so download a backup file from time to time.",
+      export: "Export",
+      import: "Import",
+      shortcuts: [
+        ["N", "new quote"],
+        ["/", "search"],
+        ["\u2190 \u2192", "turn pages"],
+        ["Esc", "close dialog"],
+      ],
+    };
+
+
+    /* =========================================================
+       2. CONFIG + ICONS
+       ========================================================= */
+    const FILE_PREFIX = "varaq";
+    const STORAGE_KEYS = {
+      quotes: "varaq:quotes",
+      quotesCorruptedBackup: "varaq:quotes:corrupted-backup", // unreadable data is parked here, never thrown away
+      theme: "varaq:theme",
+      books: "varaq:books",                 // reading positions of the books you opened
+      readerSettings: "varaq:reader-settings", // zoom + brightness
+    };
+    const THEMES = ["dark", "sepia", "light"];
+    const DEFAULT_THEME = "dark";
+    const EXPORT_VERSION = 2; // 2 = backups now also contain the list of books
+    const UNDO_DURATION_MS = 6000;
+    const DEFAULT_FILTERS = { search: "", book: "", tag: "", favoritesOnly: false, sort: "newest" };
+
+    // Reader settings
+    // The PDF library is loaded from a CDN the first time you open the Reader (never for quotes only).
+    // The version is pinned on purpose: a new release can never silently change how the app behaves.
+    const PDF_JS_VERSION = "3.11.174";
+    const PDF_JS_BASE = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${PDF_JS_VERSION}`;
+    const PDF_JS_URL = `${PDF_JS_BASE}/pdf.min.js`;
+    const PDF_WORKER_URL = `${PDF_JS_BASE}/pdf.worker.min.js`;
+    const PDF_CMAP_URL = `${PDF_JS_BASE}/cmaps/`; // lets PDFs with Chinese/Japanese/Korean text display correctly
+    const MAX_PAGE_WIDTH = 880;        // px: on a big screen a page this wide is comfortable to read
+    const MIN_PAGE_WIDTH = 260;
+    const MIN_ZOOM = 0.5;
+    const MAX_ZOOM = 3;
+    const ZOOM_STEP = 0.25;
+    const MIN_BRIGHTNESS = 50;
+    const MAX_CANVAS_PIXELS = 16000000; // very large canvases crash phones, so we cap the sharpness
+    const SWIPE_MIN_PX = 60;
+    const MAX_RECENT_BOOKS = 8;
+
+    // Simple line icons (same drawing style as the Feather icon set)
+    function svg(inner) {
+      return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">${inner}</svg>`;
+    }
+    const ICONS = {
+      bookmark: svg('<path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>'),
+      book: svg('<path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>'),
+      plus: svg('<line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>'),
+      close: svg('<line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>'),
+      search: svg('<circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>'),
+      heart: svg('<path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>'),
+      copy: svg('<rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>'),
+      image: svg('<rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>'),
+      edit: svg('<path d="M17 3a2.83 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/>'),
+      trash: svg('<polyline points="3 6 5 6 21 6"/><path d="M19 6l-2 14a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>'),
+      download: svg('<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>'),
+      upload: svg('<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>'),
+      refresh: svg('<polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>'),
+      back: svg('<line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/>'),
+      chevronLeft: svg('<polyline points="15 18 9 12 15 6"/>'),
+      chevronRight: svg('<polyline points="9 18 15 12 9 6"/>'),
+      minus: svg('<line x1="5" y1="12" x2="19" y2="12"/>'),
+      sun: svg('<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>'),
+    };
+
+
+    /* =========================================================
+       3. HELPERS
+       ========================================================= */
+    const $ = (id) => document.getElementById(id);
+
+    /*
+      el() builds a DOM element: el("p", { class: "note" }, "Hello").
+      Text passed as a child is added as TEXT, never as HTML. This matters:
+      an imported file could contain "<script>", and this keeps it harmless.
+    */
+    function el(tag, attrs = {}, ...children) {
+      const node = document.createElement(tag);
+      for (const [name, value] of Object.entries(attrs)) {
+        if (value === null || value === undefined || value === false) continue;
+        if (name === "class") node.className = value;
+        else if (name === "dataset") Object.assign(node.dataset, value);
+        else if (name.startsWith("on")) node.addEventListener(name.slice(2), value);
+        else node.setAttribute(name, value === true ? "" : value);
+      }
+      for (const child of children) {
+        if (child === null || child === undefined || child === false) continue;
+        node.append(child);
+      }
+      return node;
+    }
+
+    function iconEl(name) {
+      const node = el("span", { class: "icon" });
+      node.innerHTML = ICONS[name]; // ICONS is our own trusted constant, not user data
+      return node;
+    }
+
+    // Lower-case + single spaces, so "Atomic  Habits" and "atomic habits" compare as equal
+    function normalize(value) {
+      return String(value).toLowerCase().replace(/\s+/g, " ").trim();
+    }
+
+    // crypto.randomUUID() is not available everywhere (e.g. some file:// setups), so we make our own id
+    function makeId() {
+      return Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+    }
+
+    function formatDate(isoString) {
+      const date = new Date(isoString);
+      return STRINGS.formatDate(date.getDate(), STRINGS.months[date.getMonth()], date.getFullYear());
+    }
+
+    function todayStamp() {
+      return new Date().toISOString().slice(0, 10);
+    }
+
+    // "sabr, #Hayot , sabr" -> ["sabr", "hayot"]
+    function parseTags(input) {
+      const list = Array.isArray(input) ? input : String(input ?? "").split(",");
+      const cleaned = list
+        .map((tag) => (typeof tag === "string" ? tag : ""))
+        .map((tag) => tag.trim().replace(/^#+/, "").trim().toLowerCase())
+        .filter(Boolean);
+      return [...new Set(cleaned)]; // Set removes duplicates
+    }
+
+    function downloadBlob(blob, filename) {
+      const url = URL.createObjectURL(blob);
+      const link = el("a", { href: url, download: filename });
+      document.body.append(link);
+      link.click();
+      link.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    }
+
+    // Fill texts and icons that are written in the HTML as data-i18n / data-icon
+    function applyStaticStrings() {
+      document.title = `${STRINGS.appName}: ${STRINGS.tagline}`;
+      for (const node of document.querySelectorAll("[data-i18n]")) {
+        node.textContent = STRINGS[node.dataset.i18n] ?? node.dataset.i18n;
+      }
+      for (const node of document.querySelectorAll("[data-i18n-placeholder]")) {
+        node.placeholder = STRINGS[node.dataset.i18nPlaceholder] ?? "";
+      }
+      for (const node of document.querySelectorAll("[data-i18n-label]")) {
+        const text = STRINGS[node.dataset.i18nLabel] ?? "";
+        node.setAttribute("aria-label", text); // read by screen readers
+        node.setAttribute("title", text);      // tooltip for everyone else
+      }
+      for (const node of document.querySelectorAll("[data-icon]")) {
+        node.innerHTML = ICONS[node.dataset.icon] ?? "";
+        node.classList.add("icon");
+      }
+    }
+
+
+    /* =========================================================
+       Element references (looked up once, reused everywhere)
+       ========================================================= */
+    const dom = {
+      themeButtons: [...document.querySelectorAll("[data-theme-option]")],
+      themeColorMeta: document.querySelector('meta[name="theme-color"]'),
+
+      daily: $("daily"),
+      dailyText: $("daily-text"),
+      dailySource: $("daily-source"),
+      anotherBtn: $("another-btn"),
+
+      toolbar: $("toolbar"),
+      searchInput: $("search-input"),
+      filterBook: $("filter-book"),
+      filterTag: $("filter-tag"),
+      sortSelect: $("sort-select"),
+      filterFavorites: $("filter-favorites"),
+      resultsMeta: $("results-meta"),
+      resultsCount: $("results-count"),
+      clearFiltersBtn: $("clear-filters-btn"),
+      list: $("quote-list"),
+
+      addBtn: $("add-btn"),
+      dialog: $("quote-dialog"),
+      form: $("quote-form"),
+      dialogTitle: $("dialog-title"),
+      dialogClose: $("dialog-close"),
+      dialogCancel: $("dialog-cancel"),
+      fieldText: $("field-text"),
+      fieldBook: $("field-book"),
+      fieldAuthor: $("field-author"),
+      fieldPage: $("field-page"),
+      fieldNote: $("field-note"),
+      fieldTags: $("field-tags"),
+      errorText: $("error-text"),
+      errorBook: $("error-book"),
+      bookOptions: $("book-options"),
+
+      exportBtn: $("export-btn"),
+      importBtn: $("import-btn"),
+      importInput: $("import-input"),
+      shortcuts: $("shortcuts"),
+      toasts: $("toasts"),
+
+      // Reader
+      navButtons: [...document.querySelectorAll("[data-view]")],
+      viewQuotes: $("view-quotes"),
+      viewReader: $("view-reader"),
+      readerHome: $("reader-home"),
+      dropZone: $("drop-zone"),
+      openBookBtn: $("open-book-btn"),
+      bookInput: $("book-input"),
+      readerStatus: $("reader-status"),
+      recent: $("recent"),
+      recentList: $("recent-list"),
+      book: $("book"),
+      bookBar: $("book-bar"),
+      bookTitle: $("book-title"),
+      closeBookBtn: $("close-book-btn"),
+      pageInput: $("page-input"),
+      pageTotal: $("page-total"),
+      pageStepButtons: [...document.querySelectorAll("[data-page-step]")],
+      zoomOutBtn: $("zoom-out-btn"),
+      zoomInBtn: $("zoom-in-btn"),
+      zoomResetBtn: $("zoom-reset-btn"),
+      brightnessInput: $("brightness-input"),
+      pageScroller: $("page-scroller"),
+      pageStage: $("page-stage"),
+      selectionBar: $("selection-bar"),
+      saveSelectionBtn: $("save-selection-btn"),
+    };
+
+
+    /* =========================================================
+       4. STORAGE
+       The only place that talks to localStorage. Every call is wrapped in
+       try/catch because localStorage can throw (private mode, full disk,
+       blocked by settings), and one crash here must never break the app.
+       ========================================================= */
+    function readStorage(key) {
+      try {
+        return localStorage.getItem(key);
+      } catch (error) {
+        return null;
+      }
+    }
+
+    function writeStorage(key, value) {
+      try {
+        localStorage.setItem(key, value);
+        return true;
+      } catch (error) {
+        return false;
+      }
+    }
+
+    // Returns { quotes, corrupted }. Broken data never crashes the app.
+    function loadQuotes() {
+      const raw = readStorage(STORAGE_KEYS.quotes);
+      if (!raw) return { quotes: [], corrupted: false }; // first visit: nothing saved yet
+
+      try {
+        const quotes = extractQuotes(JSON.parse(raw));
+        if (quotes === null) throw new Error("Unexpected data shape");
+        return { quotes, corrupted: false };
+      } catch (error) {
+        // Park the unreadable text under another key: the next save would overwrite it,
+        // and it might still be repairable by hand.
+        writeStorage(STORAGE_KEYS.quotesCorruptedBackup, raw);
+        return { quotes: [], corrupted: true };
+      }
+    }
+
+    function saveQuotes(quotes) {
+      return writeStorage(STORAGE_KEYS.quotes, JSON.stringify(quotes));
+    }
+
+    function loadTheme() {
+      const saved = readStorage(STORAGE_KEYS.theme);
+      return THEMES.includes(saved) ? saved : DEFAULT_THEME;
+    }
+
+    function saveTheme(theme) {
+      writeStorage(STORAGE_KEYS.theme, theme);
+    }
+
+    // Books are saved as a list, but used in memory as an object { id: book } for quick lookup
+    function loadBooks() {
+      const raw = readStorage(STORAGE_KEYS.books);
+      if (!raw) return {};
+      try {
+        const list = JSON.parse(raw);
+        if (!Array.isArray(list)) return {};
+        const books = {};
+        for (const item of list) {
+          const book = sanitizeBook(item);
+          if (book) books[book.id] = book;
+        }
+        return books;
+      } catch (error) {
+        return {}; // unreadable reading positions are not precious: start fresh
+      }
+    }
+
+    function saveBooks(books) {
+      return writeStorage(STORAGE_KEYS.books, JSON.stringify(Object.values(books)));
+    }
+
+    function loadReaderSettings() {
+      const defaults = { zoom: 1, brightness: 100 };
+      const raw = readStorage(STORAGE_KEYS.readerSettings);
+      if (!raw) return defaults;
+      try {
+        const saved = JSON.parse(raw);
+        const zoom = Number(saved.zoom);
+        const brightness = Number(saved.brightness);
+        return {
+          zoom: Number.isFinite(zoom) ? Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, zoom)) : defaults.zoom,
+          brightness: Number.isFinite(brightness) ? Math.min(100, Math.max(MIN_BRIGHTNESS, brightness)) : defaults.brightness,
+        };
+      } catch (error) {
+        return defaults;
+      }
+    }
+
+    function saveReaderSettings(settings) {
+      writeStorage(STORAGE_KEYS.readerSettings, JSON.stringify(settings));
+    }
+
+
+    /* =========================================================
+       5. STATE
+       One object holds everything that changes. Render functions only READ
+       it; action functions CHANGE it. That keeps the app easy to follow.
+       ========================================================= */
+    const state = {
+      quotes: [],                       // [{ id, text, book, author, page, note, tags, favorite, createdAt }]
+      theme: DEFAULT_THEME,
+      filters: { ...DEFAULT_FILTERS },
+      dailyQuoteId: null,               // which quote is shown in "Quote of the day"
+      editingId: null,                  // id of the quote in the dialog (null = adding a new one)
+      dialogBookId: null,               // set when the dialog was opened from the Reader
+      view: "quotes",                   // "quotes" or "reader"
+      books: {},                        // { id: { id, title, author, pages, page, openedAt } }
+
+      // Everything about the book that is open right now (null pdf = no book open)
+      reader: {
+        pdf: null,
+        bookId: null,
+        title: "",
+        author: "",
+        page: 1,
+        pages: 0,
+        zoom: 1,                        // 1 = fit the page width, 2 = twice as big
+        brightness: 100,                // percent
+        opening: false,
+        renderId: 0,                    // counts page drawings, so an old one can't overwrite a newer one
+        renderTask: null,
+        renderedWidth: 0,
+        selectedText: "",
+      },
+    };
+
+    function findQuote(id) {
+      return state.quotes.find((quote) => quote.id === id);
+    }
+
+    function hasActiveFilters() {
+      const { search, book, tag, favoritesOnly } = state.filters;
+      return search.trim() !== "" || book !== "" || tag !== "" || favoritesOnly;
+    }
+
+
+    /* =========================================================
+       6. QUOTE LOGIC  (works on data only, never touches the page)
+       ========================================================= */
+
+    // Accepts anything and returns a clean quote object, or null if it is unusable.
+    // Used for saved data AND imported files, so bad data can't get in either way.
+    function sanitizeQuote(raw) {
+      if (!raw || typeof raw !== "object") return null;
+
+      const text = asCleanString(raw.text);
+      const book = asCleanString(raw.book);
+      if (!text || !book) return null; // the two required fields
+
+      const created = new Date(raw.createdAt ?? NaN);
+      return {
+        id: asCleanString(raw.id) || makeId(),
+        text,
+        book,
+        author: asCleanString(raw.author),
+        page: asCleanString(raw.page),
+        note: asCleanString(raw.note),
+        tags: parseTags(raw.tags),
+        favorite: raw.favorite === true,
+        createdAt: isNaN(created) ? new Date().toISOString() : created.toISOString(),
+      };
+    }
+
+    function asCleanString(value) {
+      if (typeof value === "string") return value.trim();
+      if (typeof value === "number") return String(value);
+      return "";
+    }
+
+    // Understands our export format ({ quotes: [...] }) and a plain array.
+    // Returns null when the data is not a list of quotes at all.
+    function extractQuotes(data) {
+      const list = Array.isArray(data) ? data : data && Array.isArray(data.quotes) ? data.quotes : null;
+      if (!list) return null;
+      return list.map((item) => sanitizeQuote(item)).filter(Boolean);
+    }
+
+    // Two quotes are "the same" if they have the same id, OR the same text in the same book.
+    // The second rule catches copies made on another device (different ids).
+    function duplicateKey(quote) {
+      return `${normalize(quote.text)}||${normalize(quote.book)}`;
+    }
+
+    function mergeQuotes(existing, incoming) {
+      const knownIds = new Set(existing.map((quote) => quote.id));
+      const knownKeys = new Set(existing.map(duplicateKey));
+      const merged = [...existing];
+      let added = 0;
+      let skipped = 0;
+
+      for (const quote of incoming) {
+        const key = duplicateKey(quote);
+        if (knownIds.has(quote.id) || knownKeys.has(key)) {
+          skipped++;
+          continue;
+        }
+        merged.push(quote);
+        knownIds.add(quote.id);
+        knownKeys.add(key); // also protects against duplicates inside the imported file itself
+        added++;
+      }
+      return { merged, added, skipped };
+    }
+
+    function getVisibleQuotes() {
+      const { search, book, tag, favoritesOnly, sort } = state.filters;
+      const needle = normalize(search);
+
+      const matches = state.quotes.filter((quote) => {
+        if (favoritesOnly && !quote.favorite) return false;
+        if (book && normalize(quote.book) !== normalize(book)) return false;
+        if (tag && !quote.tags.includes(tag)) return false;
+        if (needle && !normalize(`${quote.text} ${quote.book} ${quote.author}`).includes(needle)) return false;
+        return true;
+      });
+
+      // filter() made a new array, so sorting it does not disturb state.quotes
+      const direction = sort === "oldest" ? 1 : -1;
+      return matches.sort((a, b) => direction * (new Date(a.createdAt) - new Date(b.createdAt)));
+    }
+
+    // Unique book titles (case-insensitive), for the filter and the autocomplete
+    function getBooks() {
+      const byKey = new Map();
+      for (const quote of state.quotes) {
+        const key = normalize(quote.book);
+        if (!byKey.has(key)) byKey.set(key, quote.book);
+      }
+      return [...byKey.values()].sort((a, b) => a.localeCompare(b));
+    }
+
+    function getTags() {
+      return [...new Set(state.quotes.flatMap((quote) => quote.tags))].sort((a, b) => a.localeCompare(b));
+    }
+
+    function findAuthorForBook(book) {
+      const match = state.quotes.find((quote) => quote.author && normalize(quote.book) === normalize(book));
+      return match ? match.author : "";
+    }
+
+    // Picks a random quote id, avoiding `excludeId` so "Another one" really shows another one
+    function pickRandomQuoteId(excludeId = null) {
+      const others = state.quotes.filter((quote) => quote.id !== excludeId);
+      const pool = others.length > 0 ? others : state.quotes;
+      if (pool.length === 0) return null;
+      return pool[Math.floor(Math.random() * pool.length)].id;
+    }
+
+    function formatQuoteForSharing(quote) {
+      const source = [quote.author, quote.book].filter(Boolean).join(", ");
+      const page = quote.page ? ` (${STRINGS.pageLabel(quote.page)})` : "";
+      return `\u201C${quote.text}\u201D\n\u2014 ${source}${page}`;
+    }
+
+
+    /* =========================================================
+       6b. BOOK LOGIC  (data only, like the quote logic above)
+       A "book" is not the PDF file (that is too big for localStorage). It is a small
+       record that remembers WHERE you stopped: { id, title, author, pages, page, openedAt }.
+       ========================================================= */
+    function sanitizeBook(raw) {
+      if (!raw || typeof raw !== "object") return null;
+      const id = asCleanString(raw.id);
+      if (!id) return null;
+
+      const pages = Math.max(0, Math.floor(Number(raw.pages)) || 0);
+      let page = Math.max(1, Math.floor(Number(raw.page)) || 1);
+      if (pages > 0) page = Math.min(page, pages);
+
+      const opened = new Date(raw.openedAt ?? NaN);
+      return {
+        id,
+        title: asCleanString(raw.title) || STRINGS.untitledBook,
+        author: asCleanString(raw.author),
+        pages,
+        page,
+        openedAt: isNaN(opened) ? new Date(0).toISOString() : opened.toISOString(),
+      };
+    }
+
+    // Reads the "books" list of a backup file (an empty list if there is none)
+    function extractBooks(data) {
+      const list = data && Array.isArray(data.books) ? data.books : [];
+      return list.map((item) => sanitizeBook(item)).filter(Boolean);
+    }
+
+    // Same idea as mergeQuotes: nothing is lost. If both sides know a book, the most recently read one wins.
+    function mergeBooks(existing, incoming) {
+      const merged = { ...existing };
+      for (const book of incoming) {
+        const current = merged[book.id];
+        if (!current || new Date(book.openedAt) > new Date(current.openedAt)) merged[book.id] = book;
+      }
+      return merged;
+    }
+
+    // A PDF has a built-in "fingerprint" that stays the same even if you rename or move the file,
+    // so we can recognise the same book next time. If it is missing we fall back to name + size.
+    function getBookId(pdf, file) {
+      const fingerprint = pdf.fingerprints && pdf.fingerprints[0];
+      return fingerprint ? `pdf-${fingerprint}` : `file-${file.name}-${file.size}`;
+    }
+
+    // Titles inside PDFs are often junk ("Microsoft Word - doc1.docx"), so we check them first
+    function guessBookInfo(metadata, file) {
+      const info = (metadata && metadata.info) || {};
+      const metaTitle = asCleanString(info.Title);
+      const looksUseful =
+        metaTitle.length >= 3 &&
+        metaTitle.length <= 150 &&
+        !/\.(docx?|indd|pdf|tex|pages)$/i.test(metaTitle) &&
+        !/^(microsoft word|untitled)/i.test(metaTitle);
+
+      const fileTitle = file.name.replace(/\.pdf$/i, "").replace(/_+/g, " ").replace(/\s+/g, " ").trim().slice(0, 200);
+      return {
+        title: looksUseful ? metaTitle : fileTitle || STRINGS.untitledBook,
+        author: asCleanString(info.Author).slice(0, 120),
+      };
+    }
+
+    // Selected text from a PDF has a line break at the end of every line. Make it read like normal text.
+    function cleanSelectedText(raw) {
+      return raw
+        .replace(/(\p{L})-\s*\n\s*(?=\p{Ll})/gu, "$1")                  // "informa-\ntion" -> "information"
+        .replace(/([\u3400-\u9fff])\s*\n\s*(?=[\u3400-\u9fff])/g, "$1") // Chinese has no spaces between words
+        .replace(/\s*\n\s*/g, " ")                                       // any other line break -> a space
+        .replace(/\s{2,}/g, " ")
+        .trim();
+    }
+
+
+    /* =========================================================
+       7. RENDER FUNCTIONS
+       Each one reads `state` and updates one part of the page.
+       ========================================================= */
+    function renderAll() {
+      renderQuoteOfDay();
+      renderFilters();
+      renderList();
+    }
+
+    function renderTheme() {
+      document.documentElement.dataset.theme = state.theme;
+      for (const button of dom.themeButtons) {
+        button.setAttribute("aria-pressed", String(button.dataset.themeOption === state.theme));
+      }
+      // Colour the phone's browser bar like the page
+      const background = getComputedStyle(document.documentElement).getPropertyValue("--bg").trim();
+      if (background) dom.themeColorMeta.setAttribute("content", background);
+    }
+
+    // "Author" on one line, "Book, page" under it
+    function createSource(quote) {
+      return el("p", { class: "source" },
+        quote.author ? el("span", { class: "source-author" }, quote.author) : null,
+        el("span", { class: "source-book" },
+          el("cite", {}, quote.book),
+          quote.page ? `, ${STRINGS.pageLabel(quote.page)}` : ""
+        )
+      );
+    }
+
+    function renderQuoteOfDay() {
+      if (state.quotes.length === 0) {
+        dom.daily.hidden = true;
+        return;
+      }
+
+      // If the chosen quote was deleted (or nothing was chosen yet), choose again
+      let quote = findQuote(state.dailyQuoteId);
+      if (!quote) {
+        state.dailyQuoteId = pickRandomQuoteId();
+        quote = findQuote(state.dailyQuoteId);
+      }
+
+      dom.daily.hidden = false;
+      dom.dailyText.textContent = quote.text;
+      dom.dailySource.replaceChildren(createSource(quote));
+      dom.anotherBtn.hidden = state.quotes.length < 2; // nothing else to show with a single quote
+    }
+
+    function renderFilters() {
+      const books = getBooks();
+      const tags = getTags();
+
+      // A chosen book/tag can disappear (its last quote was deleted or renamed).
+      // Reset it here so the dropdown and the list can never disagree.
+      const matchingBook = books.find((book) => normalize(book) === normalize(state.filters.book));
+      state.filters.book = matchingBook ?? "";
+      if (!tags.includes(state.filters.tag)) state.filters.tag = "";
+
+      fillSelect(dom.filterBook, STRINGS.allBooks, books, state.filters.book);
+      fillSelect(dom.filterTag, STRINGS.allTags, tags, state.filters.tag);
+      dom.sortSelect.value = state.filters.sort;
+      dom.filterFavorites.checked = state.filters.favoritesOnly;
+
+      // Only touch the search box if it differs, otherwise the cursor would jump while typing
+      if (dom.searchInput.value !== state.filters.search) dom.searchInput.value = state.filters.search;
+
+      dom.toolbar.hidden = state.quotes.length === 0;
+    }
+
+    function fillSelect(select, allLabel, values, selected) {
+      const options = [
+        el("option", { value: "" }, allLabel),
+        ...values.map((value) => el("option", { value }, value)),
+      ];
+      select.replaceChildren(...options);
+      select.value = selected;
+    }
+
+    function renderList() {
+      const savedFocus = rememberFocus();
+      const total = state.quotes.length;
+      const visible = getVisibleQuotes();
+      const filtered = hasActiveFilters();
+
+      dom.resultsMeta.hidden = total === 0;
+      dom.resultsCount.textContent = filtered
+        ? STRINGS.quotesCountFiltered(visible.length, total)
+        : STRINGS.quotesCount(total);
+      dom.clearFiltersBtn.hidden = !filtered;
+
+      let children;
+      if (total === 0) {
+        children = [createEmptyState({
+          title: STRINGS.emptyTitle,
+          text: STRINGS.emptyText,
+          actionLabel: STRINGS.emptyAction,
+          action: "add",
+          primary: true,
+        })];
+      } else if (visible.length === 0) {
+        children = [createEmptyState({
+          title: STRINGS.noResultsTitle,
+          text: STRINGS.noResultsText,
+          actionLabel: STRINGS.clearFilters,
+          action: "clear-filters",
+          primary: false,
+        })];
+      } else {
+        children = visible.map(createQuoteCard);
+      }
+
+      dom.list.replaceChildren(...children);
+      restoreFocus(savedFocus);
+    }
+
+    // Re-drawing the list replaces its buttons, which would drop keyboard focus.
+    // We remember which button was focused and focus its twin afterwards.
+    function rememberFocus() {
+      const active = document.activeElement;
+      if (!active || !dom.list.contains(active)) return null;
+      const card = active.closest("[data-id]");
+      return card ? { id: card.dataset.id, action: active.dataset.action } : null;
+    }
+
+    function restoreFocus(saved) {
+      if (!saved) return;
+      const card = [...dom.list.querySelectorAll("[data-id]")].find((node) => node.dataset.id === saved.id);
+      if (!card) return;
+      const button = [...card.querySelectorAll("[data-action]")].find((node) => node.dataset.action === saved.action);
+      if (button) button.focus();
+    }
+
+    function createEmptyState({ title, text, actionLabel, action, primary }) {
+      return el("div", { class: "empty" },
+        iconEl("book"),
+        el("h2", {}, title),
+        el("p", {}, text),
+        el("button", { type: "button", class: primary ? "btn btn-primary" : "btn btn-ghost", dataset: { action } }, actionLabel)
+      );
+    }
+
+    function createQuoteCard(quote) {
+      return el("article", { class: "card", dataset: { id: quote.id } },
+        el("blockquote", { class: "card-text" }, quote.text),
+        createSource(quote),
+        quote.note ? el("p", { class: "card-note" }, quote.note) : null,
+        quote.tags.length > 0 ? el("ul", { class: "tags" }, ...quote.tags.map(createTagItem)) : null,
+        el("div", { class: "card-footer" },
+          el("time", { class: "card-date", datetime: quote.createdAt }, formatDate(quote.createdAt)),
+          createCardActions(quote)
+        )
+      );
+    }
+
+    function createTagItem(tag) {
+      return el("li", {},
+        el("button", {
+          type: "button",
+          class: "tag",
+          title: STRINGS.tagFilterHint(tag),
+          "aria-pressed": String(state.filters.tag === tag),
+          dataset: { action: "filter-tag", tag },
+        }, `#${tag}`)
+      );
+    }
+
+    function createCardActions(quote) {
+      return el("div", { class: "card-actions" },
+        createActionButton("favorite", "heart", STRINGS.cardFavorite, { pressed: quote.favorite }),
+        createActionButton("copy", "copy", STRINGS.cardCopy),
+        createActionButton("image", "image", STRINGS.cardImage),
+        createActionButton("edit", "edit", STRINGS.cardEdit),
+        createActionButton("delete", "trash", STRINGS.cardDelete, { danger: true })
+      );
+    }
+
+    function createActionButton(action, iconName, label, { pressed, danger } = {}) {
+      return el("button", {
+        type: "button",
+        class: danger ? "icon-btn danger" : "icon-btn",
+        title: label,
+        "aria-label": label,
+        "aria-pressed": pressed === undefined ? null : String(pressed), // only the heart is a toggle
+        dataset: { action },
+      }, iconEl(iconName));
+    }
+
+    function renderShortcuts() {
+      const items = STRINGS.shortcuts.map(([key, label]) =>
+        el("span", {}, el("kbd", {}, key), label)
+      );
+      dom.shortcuts.replaceChildren(...items);
+    }
+
+    // A small message at the bottom of the screen. Several can be visible at once,
+    // each with its own timer, so a second delete never cancels the first "Undo".
+    function showToast(message, { actionLabel = "", onAction = null, duration = 3000 } = {}) {
+      let timer = null;
+      const toast = el("div", { class: "toast" }, el("span", {}, message));
+      const dismiss = () => {
+        clearTimeout(timer);
+        toast.remove();
+      };
+
+      if (actionLabel) {
+        toast.append(el("button", {
+          type: "button",
+          class: "toast-action",
+          onclick: () => {
+            dismiss();
+            if (onAction) onAction();
+          },
+        }, actionLabel));
+      }
+
+      timer = setTimeout(dismiss, duration);
+      dom.toasts.append(toast);
+    }
+
+
+    /* =========================================================
+       8. ACTIONS  (change state -> save -> re-render)
+       ========================================================= */
+    function persistQuotes() {
+      if (!saveQuotes(state.quotes)) showToast(STRINGS.storageError, { duration: 8000 });
+    }
+
+    function setTheme(theme) {
+      state.theme = theme;
+      saveTheme(theme);
+      renderTheme();
+    }
+
+    function setFilter(patch) {
+      Object.assign(state.filters, patch);
+      renderFilters();
+      renderList();
+    }
+
+    function clearFilters() {
+      // Keep the sort order: it is a display choice, not a filter
+      state.filters = { ...DEFAULT_FILTERS, sort: state.filters.sort };
+      renderFilters();
+      renderList();
+    }
+
+    function addQuote(values) {
+      const quote = { id: makeId(), ...values, favorite: false, createdAt: new Date().toISOString() };
+      state.quotes.push(quote);
+      // Clear filters so the new quote is guaranteed to be visible
+      state.filters = { ...DEFAULT_FILTERS, sort: state.filters.sort };
+      persistQuotes();
+      renderAll();
+      showToast(STRINGS.savedToast);
+    }
+
+    function updateQuote(id, values) {
+      const quote = findQuote(id);
+      if (!quote) return;
+      Object.assign(quote, values);
+      persistQuotes();
+      renderAll();
+      showToast(STRINGS.updatedToast);
+    }
+
+    function toggleFavorite(id) {
+      const quote = findQuote(id);
+      if (!quote) return;
+      quote.favorite = !quote.favorite;
+      persistQuotes();
+      renderAll();
+    }
+
+    // No "Are you sure?" dialog: delete right away and offer an Undo for a few seconds.
+    // It is faster to use and just as safe.
+    function deleteQuote(id) {
+      const index = state.quotes.findIndex((quote) => quote.id === id);
+      if (index === -1) return;
+
+      const [removed] = state.quotes.splice(index, 1);
+      persistQuotes();
+      renderAll();
+
+      showToast(STRINGS.deletedToast, {
+        actionLabel: STRINGS.undo,
+        duration: UNDO_DURATION_MS,
+        onAction: () => {
+          state.quotes.push(removed); // the list is sorted by date when drawn, so position doesn't matter
+          persistQuotes();
+          renderAll();
+          showToast(STRINGS.restoredToast);
+        },
+      });
+    }
+
+    async function copyQuote(id) {
+      const quote = findQuote(id);
+      if (!quote) return;
+      const copied = await copyToClipboard(formatQuoteForSharing(quote));
+      showToast(copied ? STRINGS.copiedToast : STRINGS.copyFailed);
+    }
+
+    async function copyToClipboard(text) {
+      // Modern way (needs a secure context such as https or localhost)
+      if (navigator.clipboard && window.isSecureContext) {
+        try {
+          await navigator.clipboard.writeText(text);
+          return true;
+        } catch (error) {
+          // fall through to the old method
+        }
+      }
+      return legacyCopy(text);
+    }
+
+    // Old-school fallback: put the text in a hidden textarea and use the copy command
+    function legacyCopy(text) {
+      const previouslyFocused = document.activeElement;
+      const area = el("textarea", { readonly: true, "aria-hidden": "true", style: "position:fixed;top:0;left:0;opacity:0" }, text);
+      document.body.append(area);
+      area.select();
+      area.setSelectionRange(0, text.length);
+      let copied = false;
+      try {
+        copied = document.execCommand("copy");
+      } catch (error) {
+        copied = false;
+      }
+      area.remove();
+      if (previouslyFocused && previouslyFocused.focus) previouslyFocused.focus();
+      return copied;
+    }
+
+    /* ----- Export / import ----- */
+    function exportQuotes() {
+      if (state.quotes.length === 0 && Object.keys(state.books).length === 0) {
+        showToast(STRINGS.exportEmpty);
+        return;
+      }
+      const payload = {
+        app: FILE_PREFIX,
+        version: EXPORT_VERSION,
+        exportedAt: new Date().toISOString(),
+        quotes: state.quotes,
+        books: Object.values(state.books), // where you stopped in each book
+      };
+      const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+      downloadBlob(blob, `${FILE_PREFIX}-backup-${todayStamp()}.json`);
+      showToast(STRINGS.exportDone(state.quotes.length));
+    }
+
+    async function importQuotes(file) {
+      try {
+        const data = JSON.parse(await file.text());
+        const incomingQuotes = extractQuotes(data); // null = not a quotes file at all
+        const incomingBooks = extractBooks(data);   // [] when the file has no books (older backups)
+        const hasBooksList = Boolean(data) && Array.isArray(data.books);
+        if (incomingQuotes === null && !hasBooksList) throw new Error("Not a backup file");
+
+        const quotesToAdd = incomingQuotes || [];
+        if (quotesToAdd.length === 0 && incomingBooks.length === 0) {
+          showToast(STRINGS.importNoQuotes);
+          return;
+        }
+
+        // Merge (never replace): what you already have stays, only new things are added
+        const { merged, added, skipped } = mergeQuotes(state.quotes, quotesToAdd);
+        state.quotes = merged;
+        state.books = mergeBooks(state.books, incomingBooks);
+        persistQuotes();
+        persistBooks();
+        renderAll();
+        renderReader();
+        showToast(STRINGS.importDone(added, skipped), { duration: 5000 });
+      } catch (error) {
+        showToast(STRINGS.importFailed, { duration: 5000 });
+      }
+    }
+
+    /* ----- Share as an image (canvas) ----- */
+    async function downloadQuoteImage(id) {
+      const quote = findQuote(id);
+      if (!quote) return;
+
+      try {
+        await waitForCanvasFonts();
+        const canvas = drawQuoteImage(quote);
+        const blob = await new Promise((resolve) => canvas.toBlob(resolve, "image/png"));
+        if (!blob) throw new Error("Could not create image");
+        downloadBlob(blob, `${FILE_PREFIX}-quote-${todayStamp()}.png`);
+        showToast(STRINGS.imageDone);
+      } catch (error) {
+        showToast(STRINGS.imageFailed);
+      }
+    }
+
+    // A canvas can only use a web font after the browser has downloaded it, so we ask for it first.
+    // If the fonts are unavailable (offline), the canvas simply uses the fallback fonts.
+    async function waitForCanvasFonts() {
+      try {
+        await Promise.all([
+          document.fonts.load("italic 40px Lora"),
+          document.fonts.load("600 34px Inter"),
+        ]);
+      } catch (error) {
+        // ignore: fallback fonts are fine
+      }
+    }
+
+    // Draws the quote on a 1080x1350 picture using the CURRENT theme's colours,
+    // read from the same CSS variables the page uses.
+    function drawQuoteImage(quote) {
+      const WIDTH = 1080;
+      const HEIGHT = 1350;
+      const PADDING = 100;
+      const LINE_HEIGHT = 1.45;
+      const contentWidth = WIDTH - PADDING * 2;
+
+      const css = getComputedStyle(document.documentElement);
+      const read = (name) => css.getPropertyValue(name).trim();
+      const serif = read("--font-serif");
+      const sans = read("--font-ui");
+
+      const canvas = document.createElement("canvas");
+      canvas.width = WIDTH;
+      canvas.height = HEIGHT;
+      const ctx = canvas.getContext("2d");
+      ctx.textBaseline = "top";
+
+      // Background: soft diagonal gradient plus a thin frame, like a book page
+      const background = ctx.createLinearGradient(0, 0, WIDTH, HEIGHT);
+      background.addColorStop(0, read("--bg"));
+      background.addColorStop(1, read("--surface-2"));
+      ctx.fillStyle = background;
+      ctx.fillRect(0, 0, WIDTH, HEIGHT);
+      ctx.strokeStyle = read("--border");
+      ctx.lineWidth = 2;
+      ctx.strokeRect(44, 44, WIDTH - 88, HEIGHT - 88);
+
+      // Big opening quote mark
+      ctx.fillStyle = read("--accent");
+      ctx.font = `200px ${serif}`;
+      ctx.fillText("\u201C", PADDING, PADDING - 10);
+
+      // Work from the bottom up: brand, then the source lines, then whatever space is left is for the quote
+      const brandTop = HEIGHT - PADDING - 30;
+
+      ctx.font = `600 36px ${sans}`;
+      const authorLines = quote.author ? limitLines(wrapText(ctx, quote.author, contentWidth), 2) : [];
+      ctx.font = `italic 32px ${serif}`;
+      const bookText = quote.page ? `${quote.book}, ${STRINGS.pageLabel(quote.page)}` : quote.book;
+      const bookLines = limitLines(wrapText(ctx, bookText, contentWidth), 2);
+
+      const AUTHOR_LINE = 48;
+      const BOOK_LINE = 44;
+      const sourceHeight = authorLines.length * AUTHOR_LINE + bookLines.length * BOOK_LINE;
+      const sourceTop = brandTop - 60 - sourceHeight;
+
+      const quoteTop = PADDING + 150;
+      const quoteBottom = sourceTop - 70;
+      const availableHeight = quoteBottom - quoteTop;
+
+      // Quote text: the largest font size that fits
+      const fitted = fitQuoteText(ctx, quote.text, contentWidth, availableHeight, serif, LINE_HEIGHT);
+      const lineHeight = fitted.size * LINE_HEIGHT;
+      const maxLines = Math.max(1, Math.floor(availableHeight / lineHeight));
+      const quoteLines = limitLines(fitted.lines, maxLines);
+
+      ctx.font = `italic ${fitted.size}px ${serif}`;
+      ctx.fillStyle = read("--text");
+      let y = quoteTop; // starts right under the quote mark, so the two read as one piece
+      for (const line of quoteLines) {
+        ctx.fillText(line, PADDING, y);
+        y += lineHeight;
+      }
+
+      // Small accent rule, then author and book
+      ctx.fillStyle = read("--accent");
+      ctx.fillRect(PADDING, sourceTop - 36, 80, 4);
+
+      let sourceY = sourceTop;
+      ctx.fillStyle = read("--text");
+      ctx.font = `600 36px ${sans}`;
+      for (const line of authorLines) {
+        ctx.fillText(line, PADDING, sourceY);
+        sourceY += AUTHOR_LINE;
+      }
+      ctx.fillStyle = read("--text-muted");
+      ctx.font = `italic 32px ${serif}`;
+      for (const line of bookLines) {
+        ctx.fillText(line, PADDING, sourceY);
+        sourceY += BOOK_LINE;
+      }
+
+      // App name in the corner
+      ctx.fillStyle = read("--text-muted");
+      ctx.font = `600 28px ${serif}`;
+      ctx.fillText(STRINGS.appName, PADDING, brandTop);
+
+      return canvas;
+    }
+
+    // Tries font sizes from big to small until the wrapped text fits into maxHeight
+    function fitQuoteText(ctx, text, maxWidth, maxHeight, serif, lineHeightRatio) {
+      const MAX_SIZE = 60;
+      const MIN_SIZE = 28;
+      let result = null;
+      for (let size = MAX_SIZE; size >= MIN_SIZE; size -= 2) {
+        ctx.font = `italic ${size}px ${serif}`;
+        const lines = wrapText(ctx, text, maxWidth);
+        result = { size, lines };
+        if (lines.length * size * lineHeightRatio <= maxHeight) break;
+      }
+      return result; // at the smallest size the text may still be too long: the caller cuts it with "..."
+    }
+
+    // Splits text into lines that fit maxWidth (uses the font currently set on ctx).
+    // A single word wider than the whole line is not split: very rare, so we keep the code simple.
+    function wrapText(ctx, text, maxWidth) {
+      const lines = [];
+      for (const paragraph of text.split("\n")) {
+        let line = "";
+        for (const word of paragraph.split(/\s+/).filter(Boolean)) {
+          const attempt = line ? `${line} ${word}` : word;
+          if (line && ctx.measureText(attempt).width > maxWidth) {
+            lines.push(line);
+            line = word;
+          } else {
+            line = attempt;
+          }
+        }
+        lines.push(line); // an empty paragraph becomes an empty line
+      }
+      return lines;
+    }
+
+    function limitLines(lines, maxLines) {
+      if (lines.length <= maxLines) return lines;
+      const kept = lines.slice(0, maxLines);
+      kept[maxLines - 1] = kept[maxLines - 1].replace(/[\s.,;:!?]+$/, "") + "\u2026";
+      return kept;
+    }
+
+    /* ----- The add / edit dialog ----- */
+    // `prefill` is used by the Reader: { text, book, author, page, bookId } filled in from the page you are reading
+    function openQuoteDialog(id = null, prefill = null) {
+      const quote = id ? findQuote(id) : null;
+      const start = quote || prefill || {};
+      state.editingId = quote ? quote.id : null;
+      state.dialogBookId = !quote && prefill && prefill.bookId ? prefill.bookId : null;
+
+      dom.dialogTitle.textContent = quote ? STRINGS.editQuote : STRINGS.addQuote;
+      dom.fieldText.value = start.text || "";
+      dom.fieldBook.value = start.book || "";
+      dom.fieldAuthor.value = start.author || "";
+      dom.fieldPage.value = start.page || "";
+      dom.fieldNote.value = quote ? quote.note : "";
+      dom.fieldTags.value = quote ? quote.tags.join(", ") : "";
+
+      setFieldError(dom.fieldText, dom.errorText, "");
+      setFieldError(dom.fieldBook, dom.errorBook, "");
+
+      // Autocomplete list of books you already have
+      dom.bookOptions.replaceChildren(...getBooks().map((book) => el("option", { value: book })));
+
+      if (!dom.dialog.open) dom.dialog.showModal();
+      dom.fieldText.focus();
+    }
+
+    function closeQuoteDialog() {
+      if (dom.dialog.open) dom.dialog.close();
+    }
+
+    function readForm() {
+      return {
+        text: dom.fieldText.value.trim(),
+        book: dom.fieldBook.value.trim(),
+        author: dom.fieldAuthor.value.trim(),
+        page: dom.fieldPage.value.trim(),
+        note: dom.fieldNote.value.trim(),
+        tags: parseTags(dom.fieldTags.value),
+      };
+    }
+
+    function setFieldError(input, errorNode, message) {
+      errorNode.textContent = message;
+      errorNode.hidden = message === "";
+      input.setAttribute("aria-invalid", message === "" ? "false" : "true");
+    }
+
+    // Returns true when the form can be saved. Shows a message under each missing field.
+    function validateForm(values) {
+      const checks = [
+        { input: dom.fieldText, errorNode: dom.errorText, message: values.text ? "" : STRINGS.errorText },
+        { input: dom.fieldBook, errorNode: dom.errorBook, message: values.book ? "" : STRINGS.errorBook },
+      ];
+      for (const check of checks) setFieldError(check.input, check.errorNode, check.message);
+
+      const firstProblem = checks.find((check) => check.message !== "");
+      if (firstProblem) firstProblem.input.focus();
+      return !firstProblem;
+    }
+
+
+    /* =========================================================
+       READER (PDF)
+       Same pattern as the quotes part: `state.reader` holds the data,
+       render functions draw it, action functions change it.
+       The PDF library is "pdf.js" (made by Mozilla, used inside Firefox).
+       ========================================================= */
+    const reader = state.reader;       // short name for state.reader
+    let pdfEnginePromise = null;       // the library is downloaded once, the first time it is needed
+    let touchStart = null;             // where the current finger swipe began
+    let selectionTimer = null;         // small delay, so we don't react to every tiny selection change
+    let resizeTimer = null;
+
+    function clamp(value, min, max) {
+      return Math.min(max, Math.max(min, value));
+    }
+
+    function makeNamedError(name) {
+      const error = new Error(name);
+      error.name = name;
+      return error;
+    }
+
+    /* ----- Loading the PDF library ----- */
+    function prepareEngine(library) {
+      // The "worker" is a helper that reads the PDF in the background, so the page never freezes
+      if (library.GlobalWorkerOptions && !library.GlobalWorkerOptions.workerSrc) {
+        library.GlobalWorkerOptions.workerSrc = PDF_WORKER_URL;
+      }
+      return library;
+    }
+
+    function loadPdfEngine() {
+      if (window.pdfjsLib) return Promise.resolve(prepareEngine(window.pdfjsLib));
+
+      if (!pdfEnginePromise) {
+        pdfEnginePromise = new Promise((resolve, reject) => {
+          const script = el("script", { src: PDF_JS_URL });
+          script.addEventListener("load", () => {
+            if (window.pdfjsLib) resolve(prepareEngine(window.pdfjsLib));
+            else reject(makeNamedError("EngineError"));
+          });
+          script.addEventListener("error", () => reject(makeNamedError("EngineError")));
+          document.head.append(script);
+        }).catch((error) => {
+          pdfEnginePromise = null; // forget the failure, so the next try starts fresh (e.g. after the internet is back)
+          throw error;
+        });
+      }
+      return pdfEnginePromise;
+    }
+
+    /* ----- Switching between Quotes and Reader ----- */
+    function showView(view) {
+      state.view = view;
+      renderView();
+      // A hidden element has no width, so a page can only be drawn once the Reader is visible
+      if (view === "reader" && reader.pdf) renderPage();
+      window.scrollTo(0, 0);
+    }
+
+    function renderView() {
+      const isReader = state.view === "reader";
+      dom.viewQuotes.hidden = isReader;
+      dom.viewReader.hidden = !isReader;
+      dom.addBtn.hidden = isReader; // in the Reader, quotes are created from selected text instead
+      for (const button of dom.navButtons) {
+        if (button.dataset.view === state.view) button.setAttribute("aria-current", "page");
+        else button.removeAttribute("aria-current");
+      }
+      hideSelectionBar();
+    }
+
+    /* ----- Render functions ----- */
+    function renderReader() {
+      const isOpen = reader.pdf !== null;
+      dom.readerHome.hidden = isOpen;
+      dom.book.hidden = !isOpen;
+
+      if (!isOpen) {
+        renderRecentBooks();
+        return;
+      }
+      dom.bookTitle.textContent = reader.title;
+      dom.bookTitle.title = reader.title; // full title as a tooltip when it is cut with "..."
+      renderControls();
+    }
+
+    function renderControls() {
+      dom.pageInput.value = reader.page;
+      dom.pageInput.max = reader.pages;
+      dom.pageTotal.textContent = STRINGS.readerOf(reader.pages);
+
+      for (const button of dom.pageStepButtons) {
+        const step = Number(button.dataset.pageStep);
+        button.disabled = step < 0 ? reader.page <= 1 : reader.page >= reader.pages;
+      }
+
+      dom.zoomResetBtn.textContent = `${Math.round(reader.zoom * 100)}%`;
+      dom.zoomOutBtn.disabled = reader.zoom <= MIN_ZOOM;
+      dom.zoomInBtn.disabled = reader.zoom >= MAX_ZOOM;
+      dom.brightnessInput.value = reader.brightness;
+    }
+
+    function renderRecentBooks() {
+      const books = Object.values(state.books)
+        .sort((a, b) => new Date(b.openedAt) - new Date(a.openedAt))
+        .slice(0, MAX_RECENT_BOOKS);
+
+      dom.recent.hidden = books.length === 0;
+      dom.recentList.replaceChildren(...books.map(createRecentItem));
+    }
+
+    function createRecentItem(book) {
+      return el("li", { class: "recent-item", dataset: { id: book.id } },
+        el("button", { type: "button", class: "recent-open", dataset: { action: "pick-book" } },
+          el("span", { class: "recent-title" }, book.title),
+          book.author ? el("span", { class: "recent-author" }, book.author) : null,
+          el("span", { class: "recent-page" }, STRINGS.readerStopped(book.page, book.pages))
+        ),
+        el("button", {
+          type: "button",
+          class: "icon-btn",
+          title: STRINGS.readerForget,
+          "aria-label": STRINGS.readerForget,
+          dataset: { action: "forget-book" },
+        }, iconEl("close"))
+      );
+    }
+
+    function applyBrightness() {
+      // The CSS reads this variable (see ".page canvas")
+      dom.pageStage.style.setProperty("--page-brightness", String(reader.brightness / 100));
+    }
+
+    /*
+      Draws the current page: first the picture (canvas), then an invisible text layer on top.
+      Why the "renderId": drawing is asynchronous. If you flip pages quickly, an older drawing
+      may finish AFTER a newer one started. Each drawing gets a number and gives up
+      as soon as it is no longer the newest.
+    */
+    async function renderPage() {
+      if (!reader.pdf || state.view !== "reader") return;
+
+      const renderId = ++reader.renderId;
+      if (reader.renderTask) {
+        reader.renderTask.cancel(); // stop drawing the previous page
+        reader.renderTask = null;
+      }
+      dom.pageStage.setAttribute("aria-busy", "true");
+
+      try {
+        const page = await reader.pdf.getPage(reader.page);
+        if (renderId !== reader.renderId) return;
+
+        // Size: fit the page to the available width (but never wider than MAX_PAGE_WIDTH), then apply the zoom
+        reader.renderedWidth = dom.pageScroller.clientWidth;
+        const available = Math.max(MIN_PAGE_WIDTH, reader.renderedWidth);
+        const naturalWidth = page.getViewport({ scale: 1 }).width;
+        const fitScale = Math.min(available, MAX_PAGE_WIDTH) / naturalWidth;
+        const viewport = page.getViewport({ scale: fitScale * reader.zoom });
+
+        // Sharpness: draw more pixels on high-density screens (phones, laptops with 2x screens),
+        // but cap the total so a huge zoom can't exhaust memory.
+        const pixelRatio = window.devicePixelRatio || 1;
+        const maxRatio = Math.sqrt(MAX_CANVAS_PIXELS / (viewport.width * viewport.height));
+        const outputScale = Math.min(pixelRatio, maxRatio);
+
+        // We draw on a NEW canvas and swap it in when ready, so the old page stays visible meanwhile (no flicker)
+        const canvas = el("canvas", { role: "img" });
+        canvas.width = Math.floor(viewport.width * outputScale);
+        canvas.height = Math.floor(viewport.height * outputScale);
+        canvas.style.width = `${viewport.width}px`;
+        canvas.style.height = `${viewport.height}px`;
+
+        const textLayer = el("div", { class: "textLayer" });
+        // pdf.js sizes the invisible text with calc(var(--scale-factor) * ...). Without this line the
+        // text would not line up with the picture, and selecting would grab the wrong words.
+        textLayer.style.setProperty("--scale-factor", String(viewport.scale));
+        const pageElement = el("div", { class: "page", style: `width:${viewport.width}px;height:${viewport.height}px` }, canvas, textLayer);
+
+        const task = page.render({
+          canvasContext: canvas.getContext("2d"),
+          viewport,
+          transform: [outputScale, 0, 0, outputScale, 0, 0],
+        });
+        reader.renderTask = task;
+        await task.promise;
+        reader.renderTask = null;
+        if (renderId !== reader.renderId) return;
+
+        dom.pageStage.replaceChildren(pageElement);
+        await drawTextLayer(page, textLayer, viewport, renderId);
+      } catch (error) {
+        if (error && error.name === "RenderingCancelledException") return; // we cancelled it on purpose
+        if (renderId === reader.renderId) showToast(STRINGS.readerErrorPage);
+      } finally {
+        if (renderId === reader.renderId) dom.pageStage.removeAttribute("aria-busy");
+      }
+    }
+
+    // The text layer is invisible text placed exactly over the picture. It is what makes selecting possible.
+    async function drawTextLayer(page, container, viewport, renderId) {
+      try {
+        await window.pdfjsLib.renderTextLayer({
+          textContentSource: page.streamTextContent(),
+          container,
+          viewport,
+          textDivs: [],
+        }).promise;
+        if (renderId !== reader.renderId) return;
+        container.append(el("div", { class: "endOfContent" }));
+      } catch (error) {
+        // Without a text layer the page is still readable, you just can't select text. Not worth an error message.
+      }
+    }
+
+    /* ----- Selection -> quote ----- */
+    function getSelectedPageText() {
+      if (state.view !== "reader" || !reader.pdf) return "";
+      const selection = window.getSelection();
+      if (!selection || selection.rangeCount === 0 || selection.isCollapsed) return "";
+      // Only selections inside the book page count (not, say, text in the footer)
+      if (!dom.pageStage.contains(selection.getRangeAt(0).commonAncestorContainer)) return "";
+      return cleanSelectedText(selection.toString());
+    }
+
+    function updateSelectionBar() {
+      reader.selectedText = getSelectedPageText();
+      dom.selectionBar.hidden = reader.selectedText === "";
+    }
+
+    function hideSelectionBar() {
+      reader.selectedText = "";
+      dom.selectionBar.hidden = true;
+    }
+
+    function clearPageSelection() {
+      const selection = window.getSelection();
+      if (selection) selection.removeAllRanges();
+      hideSelectionBar();
+    }
+
+    function saveSelectionAsQuote() {
+      if (!reader.selectedText) return;
+      openQuoteDialog(null, {
+        text: reader.selectedText,
+        book: reader.title,
+        author: reader.author || findAuthorForBook(reader.title),
+        page: String(reader.page),
+        bookId: reader.bookId,
+      });
+    }
+
+    // After saving a quote from the Reader: if you fixed the book title in the dialog,
+    // the Reader remembers your version, so the next quote starts with the right title.
+    function finishQuoteFromReader(values) {
+      const book = state.books[state.dialogBookId];
+      if (book && values.book) {
+        book.title = values.book;
+        if (values.author) book.author = values.author;
+        if (reader.bookId === book.id) {
+          reader.title = book.title;
+          reader.author = book.author;
+          dom.bookTitle.textContent = reader.title;
+          dom.bookTitle.title = reader.title;
+        }
+        persistBooks();
+      }
+      clearPageSelection();
+    }
+
+    /* ----- Actions: opening and closing books ----- */
+    function persistBooks() {
+      if (!saveBooks(state.books)) showToast(STRINGS.storageError, { duration: 8000 });
+    }
+
+    function looksLikePdf(file) {
+      return file.type === "application/pdf" || /\.pdf$/i.test(file.name);
+    }
+
+    function setReaderBusy(busy) {
+      reader.opening = busy;
+      dom.openBookBtn.disabled = busy;
+      dom.readerStatus.textContent = busy ? STRINGS.readerLoading : "";
+    }
+
+    function describeOpenError(error) {
+      if (error && error.name === "PasswordException") return STRINGS.readerErrorPassword;
+      if (error && error.name === "EngineError") return STRINGS.readerErrorEngine;
+      return STRINGS.readerErrorOpen;
+    }
+
+    async function openBookFile(file) {
+      if (!file || reader.opening) return;
+      if (!looksLikePdf(file)) {
+        showToast(STRINGS.readerErrorNotPdf);
+        return;
+      }
+
+      setReaderBusy(true);
+      try {
+        const library = await loadPdfEngine();
+        const data = new Uint8Array(await file.arrayBuffer());
+        const pdf = await library.getDocument({ data, cMapUrl: PDF_CMAP_URL, cMapPacked: true }).promise;
+        await startReading(pdf, file);
+      } catch (error) {
+        showToast(describeOpenError(error), { duration: 6000 });
+      } finally {
+        setReaderBusy(false);
+      }
+    }
+
+    async function startReading(pdf, file) {
+      if (reader.pdf) closeBook(); // one book at a time
+
+      let metadata = null;
+      try {
+        metadata = await pdf.getMetadata();
+      } catch (error) {
+        // metadata is a bonus: the file name works as a title
+      }
+
+      const id = getBookId(pdf, file);
+      const known = state.books[id]; // have we read this book before?
+      const guess = guessBookInfo(metadata, file);
+
+      reader.pdf = pdf;
+      reader.bookId = id;
+      reader.pages = pdf.numPages;
+      reader.title = known ? known.title : guess.title;   // a title you corrected earlier wins
+      reader.author = known ? known.author : guess.author;
+      reader.page = clamp(known ? known.page : 1, 1, pdf.numPages);
+
+      rememberBook();
+      applyBrightness();
+      renderReader();                      // show the book area first: the page needs its width to be measured
+      scrollToPageTop();
+      await renderPage();
+      if (known && reader.page > 1) showToast(STRINGS.readerContinuing(reader.page));
+    }
+
+    // Saves "where I am" for this book. Called on every page change.
+    function rememberBook() {
+      if (!reader.bookId) return;
+      state.books[reader.bookId] = {
+        id: reader.bookId,
+        title: reader.title,
+        author: reader.author,
+        pages: reader.pages,
+        page: reader.page,
+        openedAt: new Date().toISOString(),
+      };
+      persistBooks();
+    }
+
+    function closeBook() {
+      reader.renderId++; // any drawing still in progress must give up
+      if (reader.renderTask) reader.renderTask.cancel();
+      if (reader.pdf) {
+        try {
+          const closing = reader.pdf.destroy();
+          if (closing && closing.catch) closing.catch(() => {});
+        } catch (error) {
+          // nothing to do: we are leaving this book anyway
+        }
+      }
+      Object.assign(reader, { pdf: null, bookId: null, title: "", author: "", page: 1, pages: 0, renderTask: null, selectedText: "" });
+      dom.pageStage.replaceChildren();
+      hideSelectionBar();
+      renderReader();
+      window.scrollTo(0, 0);
+    }
+
+    function forgetBook(id) {
+      delete state.books[id];
+      persistBooks();
+      renderRecentBooks();
+      showToast(STRINGS.readerForgot);
+    }
+
+    /* ----- Actions: pages, zoom, brightness ----- */
+    function scrollToPageTop() {
+      // On wide screens the toolbar sticks to the top, so the page must start just below it
+      const barIsSticky = getComputedStyle(dom.bookBar).position === "sticky";
+      const offset = barIsSticky ? dom.bookBar.offsetHeight + 16 : 8;
+      const top = dom.pageScroller.getBoundingClientRect().top + window.scrollY - offset;
+      window.scrollTo(0, Math.max(0, top));
+    }
+
+    function goToPage(number) {
+      if (!reader.pdf) return;
+      if (!Number.isFinite(number)) {
+        renderControls(); // put the old, valid number back into the input
+        return;
+      }
+      const target = clamp(Math.round(number), 1, reader.pages);
+      if (target === reader.page) {
+        renderControls();
+        return;
+      }
+      reader.page = target;
+      rememberBook();
+      renderControls();
+      hideSelectionBar();
+      scrollToPageTop();
+      renderPage();
+    }
+
+    function changePage(step) {
+      goToPage(reader.page + step);
+    }
+
+    function setZoom(value) {
+      reader.zoom = clamp(Math.round(value * 100) / 100, MIN_ZOOM, MAX_ZOOM);
+      saveReaderSettings({ zoom: reader.zoom, brightness: reader.brightness });
+      renderControls();
+      hideSelectionBar();
+      renderPage();
+    }
+
+    function setBrightness(value) {
+      reader.brightness = clamp(value, MIN_BRIGHTNESS, 100);
+      applyBrightness();
+      saveReaderSettings({ zoom: reader.zoom, brightness: reader.brightness });
+    }
+
+    /* ----- Event handlers for the Reader ----- */
+    function canScrollSideways() {
+      // True when the page is zoomed wider than the screen. Then swipes/arrows should scroll, not turn pages.
+      return dom.pageScroller.scrollWidth > dom.pageScroller.clientWidth + 1;
+    }
+
+    function hasTextSelected() {
+      const selection = window.getSelection();
+      return Boolean(selection) && !selection.isCollapsed && selection.toString().trim() !== "";
+    }
+
+    function handleTouchStart(event) {
+      if (event.touches.length !== 1) {
+        touchStart = null; // two fingers = pinch-zoom, not a swipe
+        return;
+      }
+      touchStart = { x: event.touches[0].clientX, y: event.touches[0].clientY };
+    }
+
+    function handleTouchEnd(event) {
+      if (!touchStart) return;
+      const touch = event.changedTouches[0];
+      const dx = touch.clientX - touchStart.x;
+      const dy = touch.clientY - touchStart.y;
+      touchStart = null;
+
+      if (hasTextSelected() || canScrollSideways()) return;
+      // Must be long enough AND mostly sideways, so scrolling down the page never turns it
+      if (Math.abs(dx) < SWIPE_MIN_PX || Math.abs(dx) < Math.abs(dy) * 1.5) return;
+      changePage(dx < 0 ? 1 : -1); // swipe left = next page, like a paper book
+    }
+
+    function handleSelectionChange() {
+      clearTimeout(selectionTimer);
+      selectionTimer = setTimeout(updateSelectionBar, 120);
+    }
+
+    function handleResize() {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(() => {
+        if (!reader.pdf || state.view !== "reader") return;
+        // Phones also "resize" when the address bar hides while scrolling: only redraw if the width really changed
+        if (dom.pageScroller.clientWidth !== reader.renderedWidth) renderPage();
+      }, 200);
+    }
+
+    function handleRecentClick(event) {
+      const button = event.target.closest("[data-action]");
+      if (!button) return;
+      const item = button.closest("[data-id]");
+
+      if (button.dataset.action === "pick-book") dom.bookInput.click(); // the browser can't reopen a file by itself
+      if (button.dataset.action === "forget-book" && item) forgetBook(item.dataset.id);
+    }
+
+    // Returns true if the key was used by the Reader
+    function handleReaderKeys(event) {
+      if (state.view !== "reader" || !reader.pdf) return false;
+
+      // When zoomed in, the arrow keys scroll sideways (their normal job), so they only turn pages at normal zoom
+      const arrowsTurnPages = !canScrollSideways();
+      if (event.key === "ArrowLeft" && arrowsTurnPages) {
+        event.preventDefault();
+        changePage(-1);
+        return true;
+      }
+      if (event.key === "ArrowRight" && arrowsTurnPages) {
+        event.preventDefault();
+        changePage(1);
+        return true;
+      }
+      if (event.key === "+" || event.key === "=") {
+        event.preventDefault();
+        setZoom(reader.zoom + ZOOM_STEP);
+        return true;
+      }
+      if (event.key === "-") {
+        event.preventDefault();
+        setZoom(reader.zoom - ZOOM_STEP);
+        return true;
+      }
+      if (event.key === "0") {
+        event.preventDefault();
+        setZoom(1);
+        return true;
+      }
+      return false;
+    }
+
+    function bindReaderEvents() {
+      for (const button of dom.navButtons) {
+        button.addEventListener("click", () => showView(button.dataset.view));
+      }
+
+      // Opening a book: button, drag and drop
+      dom.openBookBtn.addEventListener("click", () => dom.bookInput.click());
+      dom.bookInput.addEventListener("change", () => {
+        const file = dom.bookInput.files[0];
+        dom.bookInput.value = ""; // lets you pick the same file twice in a row
+        openBookFile(file);
+      });
+      dom.dropZone.addEventListener("dragover", (event) => {
+        event.preventDefault(); // without this the browser would not allow dropping here
+        dom.dropZone.classList.add("is-dragging");
+      });
+      dom.dropZone.addEventListener("dragleave", () => dom.dropZone.classList.remove("is-dragging"));
+      dom.dropZone.addEventListener("drop", (event) => {
+        event.preventDefault(); // otherwise the browser would open the PDF in a new tab
+        dom.dropZone.classList.remove("is-dragging");
+        openBookFile(event.dataTransfer.files[0]);
+      });
+      dom.recentList.addEventListener("click", handleRecentClick);
+
+      // Reading
+      dom.closeBookBtn.addEventListener("click", closeBook);
+      dom.viewReader.addEventListener("click", (event) => {
+        const stepButton = event.target.closest("[data-page-step]"); // top and bottom buttons share this
+        if (stepButton) changePage(Number(stepButton.dataset.pageStep));
+      });
+      dom.pageInput.addEventListener("change", () => {
+        // An emptied (or invalid) number box has the value "", and Number("") is 0: that would jump to page 1.
+        const typed = dom.pageInput.value.trim();
+        goToPage(typed === "" ? NaN : Number(typed));
+      });
+      dom.zoomOutBtn.addEventListener("click", () => setZoom(reader.zoom - ZOOM_STEP));
+      dom.zoomInBtn.addEventListener("click", () => setZoom(reader.zoom + ZOOM_STEP));
+      dom.zoomResetBtn.addEventListener("click", () => setZoom(1));
+      dom.brightnessInput.addEventListener("input", () => setBrightness(Number(dom.brightnessInput.value)));
+      dom.pageScroller.addEventListener("touchstart", handleTouchStart, { passive: true });
+      dom.pageScroller.addEventListener("touchend", handleTouchEnd, { passive: true });
+      window.addEventListener("resize", handleResize);
+
+      // Text selection
+      dom.pageStage.addEventListener("mousedown", (event) => {
+        const layer = event.target.closest(".textLayer");
+        if (layer) layer.classList.add("selecting");
+      });
+      document.addEventListener("mouseup", () => {
+        for (const layer of dom.pageStage.querySelectorAll(".textLayer.selecting")) layer.classList.remove("selecting");
+      });
+      document.addEventListener("selectionchange", handleSelectionChange);
+      dom.saveSelectionBtn.addEventListener("click", saveSelectionAsQuote);
+    }
+
+
+    /* =========================================================
+       9. EVENT HANDLERS
+       ========================================================= */
+    function handleFormSubmit(event) {
+      event.preventDefault(); // stop the browser from reloading the page
+      const values = readForm();
+      if (!validateForm(values)) return;
+
+      if (state.editingId) {
+        updateQuote(state.editingId, values);
+      } else {
+        addQuote(values);
+        if (state.dialogBookId) finishQuoteFromReader(values); // the quote came from a book page
+      }
+      closeQuoteDialog();
+    }
+
+    // One listener for the whole list ("event delegation"): cards are re-created on every
+    // render, so instead of attaching listeners to each button we listen once on the parent
+    // and look at which [data-action] element was clicked.
+    function handleListClick(event) {
+      const button = event.target.closest("[data-action]");
+      if (!button) return;
+
+      const card = button.closest("[data-id]");
+      const id = card ? card.dataset.id : null;
+
+      switch (button.dataset.action) {
+        case "favorite": toggleFavorite(id); break;
+        case "copy": copyQuote(id); break;
+        case "image": downloadQuoteImage(id); break;
+        case "edit": openQuoteDialog(id); break;
+        case "delete": deleteQuote(id); break;
+        case "filter-tag": {
+          const tag = button.dataset.tag;
+          setFilter({ tag: state.filters.tag === tag ? "" : tag }); // clicking the active tag turns it off
+          break;
+        }
+        case "add": openQuoteDialog(); break;
+        case "clear-filters": clearFilters(); break;
+      }
+    }
+
+    // When you pick a book you already saved, fill in its author (only if the field is empty)
+    function handleBookChange() {
+      if (dom.fieldAuthor.value.trim() !== "") return;
+      dom.fieldAuthor.value = findAuthorForBook(dom.fieldBook.value);
+    }
+
+    function handleImportChosen() {
+      const file = dom.importInput.files[0];
+      if (file) importQuotes(file);
+      dom.importInput.value = ""; // lets you pick the same file twice in a row
+    }
+
+    function isTypingInField(target) {
+      return target instanceof Element && target.closest("input, textarea, select, [contenteditable]") !== null;
+    }
+
+    // Esc is not handled here: the native <dialog> already closes itself on Esc.
+    function handleShortcuts(event) {
+      if (event.ctrlKey || event.metaKey || event.altKey) return; // leave browser shortcuts alone
+      if (dom.dialog.open || isTypingInField(event.target)) return;
+      if (handleReaderKeys(event)) return; // arrow keys, +, -, 0 while reading
+
+      // event.code is the physical key, so "N" also works on a Cyrillic keyboard layout
+      if (event.code === "KeyN") {
+        event.preventDefault();
+        openQuoteDialog();
+      } else if (event.key === "/") {
+        event.preventDefault(); // otherwise Firefox opens its own quick-find
+        dom.searchInput.focus();
+      }
+    }
+
+    function bindEvents() {
+      for (const button of dom.themeButtons) {
+        button.addEventListener("click", () => setTheme(button.dataset.themeOption));
+      }
+
+      dom.addBtn.addEventListener("click", () => openQuoteDialog());
+      dom.anotherBtn.addEventListener("click", () => {
+        state.dailyQuoteId = pickRandomQuoteId(state.dailyQuoteId);
+        renderQuoteOfDay();
+      });
+
+      dom.searchInput.addEventListener("input", () => setFilter({ search: dom.searchInput.value }));
+      dom.filterBook.addEventListener("change", () => setFilter({ book: dom.filterBook.value }));
+      dom.filterTag.addEventListener("change", () => setFilter({ tag: dom.filterTag.value }));
+      dom.sortSelect.addEventListener("change", () => setFilter({ sort: dom.sortSelect.value }));
+      dom.filterFavorites.addEventListener("change", () => setFilter({ favoritesOnly: dom.filterFavorites.checked }));
+      dom.clearFiltersBtn.addEventListener("click", clearFilters);
+      dom.list.addEventListener("click", handleListClick);
+
+      dom.form.addEventListener("submit", handleFormSubmit);
+      dom.dialogClose.addEventListener("click", closeQuoteDialog);
+      dom.dialogCancel.addEventListener("click", closeQuoteDialog);
+      dom.dialog.addEventListener("close", () => {
+        state.editingId = null;
+        state.dialogBookId = null;
+      });
+      dom.fieldBook.addEventListener("change", handleBookChange);
+      dom.fieldText.addEventListener("input", () => setFieldError(dom.fieldText, dom.errorText, ""));
+      dom.fieldBook.addEventListener("input", () => setFieldError(dom.fieldBook, dom.errorBook, ""));
+
+      dom.exportBtn.addEventListener("click", exportQuotes);
+      dom.importBtn.addEventListener("click", () => dom.importInput.click());
+      dom.importInput.addEventListener("change", handleImportChosen);
+
+      document.addEventListener("keydown", handleShortcuts);
+      bindReaderEvents();
+    }
+
+
+    /* =========================================================
+       10. START
+       ========================================================= */
+    function init() {
+      applyStaticStrings();
+      renderShortcuts();
+
+      state.theme = loadTheme();
+      renderTheme();
+
+      const { quotes, corrupted } = loadQuotes();
+      state.quotes = quotes;
+      state.dailyQuoteId = pickRandomQuoteId();
+
+      state.books = loadBooks();
+      Object.assign(reader, loadReaderSettings()); // zoom + brightness from last time
+      applyBrightness();
+
+      bindEvents();
+      renderAll();
+      renderView();
+      renderReader();
+
+      if (corrupted) showToast(STRINGS.storageCorrupted, { duration: 10000 });
+    }
+
+    init();
+  </script>
+</body>
+</html>
